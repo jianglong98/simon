@@ -158,20 +158,51 @@ nav ul li a:hover {
 
 .learning-image {
     background-color: #e3f2fd;
-    background-image: linear-gradient(45deg, #bbdefb 25%, transparent 25%, transparent 75%, #bbdefb 75%, #bbdefb), 
-                      linear-gradient(45deg, #bbdefb 25%, transparent 25%, transparent 75%, #bbdefb 75%, #bbdefb);
-    background-size: 30px 30px;
-    background-position: 0 0, 15px 15px;
+    background-image: 
+        radial-gradient(circle at 25% 25%, #2196f3 5%, transparent 6%),
+        radial-gradient(circle at 75% 75%, #2196f3 5%, transparent 6%),
+        radial-gradient(circle at 75% 25%, #2196f3 5%, transparent 6%),
+        radial-gradient(circle at 25% 75%, #2196f3 5%, transparent 6%),
+        radial-gradient(circle at 50% 50%, #2196f3 8%, transparent 9%);
+    background-size: 50px 50px;
+    position: relative;
+}
+
+.learning-image::after {
+    content: "📚";
+    font-size: 40px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .languages-image {
     background-color: #e8f5e9;
-    background-image: linear-gradient(to right, #c8e6c9, #a5d6a7);
+    position: relative;
+}
+
+.languages-image::after {
+    content: "🗣️ 🌏";
+    font-size: 40px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .problem-solving-image {
     background-color: #fff3e0;
-    background-image: linear-gradient(to right, #ffe0b2, #ffcc80);
+    position: relative;
+}
+
+.problem-solving-image::after {
+    content: "🧩 🔍";
+    font-size: 40px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .interest-card:hover {
@@ -221,20 +252,44 @@ nav ul li a:hover {
 
 .rubiks-image {
     background-color: #e1f5fe;
-    background-image: linear-gradient(45deg, #81d4fa 25%, transparent 25%, transparent 75%, #81d4fa 75%, #81d4fa),
-                      linear-gradient(45deg, #81d4fa 25%, transparent 25%, transparent 75%, #81d4fa 75%, #81d4fa);
-    background-size: 20px 20px;
-    background-position: 0 0, 10px 10px;
+    position: relative;
+}
+
+.rubiks-image::after {
+    content: "🎮 🧩";
+    font-size: 40px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .bilingual-image {
     background-color: #f3e5f5;
-    background-image: linear-gradient(to right, #e1bee7, #ce93d8);
+    position: relative;
+}
+
+.bilingual-image::after {
+    content: "🇨🇦 🇨🇳";
+    font-size: 40px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .extrovert-image {
     background-color: #e8eaf6;
-    background-image: linear-gradient(to right, #c5cae9, #9fa8da);
+    position: relative;
+}
+
+.extrovert-image::after {
+    content: "👋 👨‍👩‍👧‍👦";
+    font-size: 40px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .fact:hover {
