@@ -148,10 +148,30 @@ nav ul li a:hover {
 .interest-image {
     width: 100%;
     height: 160px;
-    object-fit: cover;
     border-radius: 8px;
     margin-bottom: 1rem;
     transition: transform 0.3s;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.learning-image {
+    background-color: #e3f2fd;
+    background-image: linear-gradient(45deg, #bbdefb 25%, transparent 25%, transparent 75%, #bbdefb 75%, #bbdefb), 
+                      linear-gradient(45deg, #bbdefb 25%, transparent 25%, transparent 75%, #bbdefb 75%, #bbdefb);
+    background-size: 30px 30px;
+    background-position: 0 0, 15px 15px;
+}
+
+.languages-image {
+    background-color: #e8f5e9;
+    background-image: linear-gradient(to right, #c8e6c9, #a5d6a7);
+}
+
+.problem-solving-image {
+    background-color: #fff3e0;
+    background-image: linear-gradient(to right, #ffe0b2, #ffcc80);
 }
 
 .interest-card:hover {
@@ -191,10 +211,30 @@ nav ul li a:hover {
 .fact-image {
     width: 100%;
     height: 140px;
-    object-fit: cover;
     border-radius: 8px;
     margin-bottom: 1rem;
     transition: transform 0.3s;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.rubiks-image {
+    background-color: #e1f5fe;
+    background-image: linear-gradient(45deg, #81d4fa 25%, transparent 25%, transparent 75%, #81d4fa 75%, #81d4fa),
+                      linear-gradient(45deg, #81d4fa 25%, transparent 25%, transparent 75%, #81d4fa 75%, #81d4fa);
+    background-size: 20px 20px;
+    background-position: 0 0, 10px 10px;
+}
+
+.bilingual-image {
+    background-color: #f3e5f5;
+    background-image: linear-gradient(to right, #e1bee7, #ce93d8);
+}
+
+.extrovert-image {
+    background-color: #e8eaf6;
+    background-image: linear-gradient(to right, #c5cae9, #9fa8da);
 }
 
 .fact:hover {
@@ -239,5 +279,59 @@ footer {
     
     nav ul li {
         margin: 0.5rem 0;
+    }
+    
+    .section {
+        padding: 4rem 0 2rem;
+    }
+    
+    .subjects-list {
+        grid-template-columns: 1fr;
+        padding: 1rem 0;
+    }
+    
+    .interests-grid, 
+    .fun-facts-list {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .interest-image,
+    .fact-image {
+        height: 120px;
+    }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+    .hero {
+        height: 80vh;
+    }
+    
+    .hero h1 {
+        font-size: 2rem;
+    }
+    
+    .hero p {
+        font-size: 1rem;
+    }
+    
+    .section h2 {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .interest-card,
+    .fact {
+        padding: 0.8rem;
+    }
+    
+    .interest-image,
+    .fact-image {
+        height: 100px;
+    }
+    
+    header {
+        position: relative;
     }
 }
