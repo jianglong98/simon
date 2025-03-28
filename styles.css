@@ -91,20 +91,38 @@ nav ul li a:hover {
 }
 
 /* Subjects */
-.subjects ul {
+.subjects-list {
     list-style: none;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
     padding: 2rem;
 }
 
-.subjects li {
+.subjects-list li {
     background-color: white;
-    padding: 1rem;
-    border-radius: 8px;
+    padding: 1.5rem;
+    border-radius: 12px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.subjects-list li:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.subjects-list strong {
+    display: block;
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.subjects-list p {
+    color: #666;
+    font-size: 0.95rem;
+    line-height: 1.4;
 }
 
 /* Interests Grid */
