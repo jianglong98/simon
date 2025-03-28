@@ -63,7 +63,7 @@ nav ul li a:hover {
     align-items: center;
     justify-content: center;
     text-align: center;
-    background: linear-gradient(rgba(74, 144, 226, 0.7), rgba(243, 156, 18, 0.7)), url('Simon_2019.jpg');
+    background: linear-gradient(rgba(74, 144, 226, 0.7), rgba(243, 156, 18, 0.7)), url('images/Simon_2019.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -151,58 +151,7 @@ nav ul li a:hover {
     border-radius: 8px;
     margin-bottom: 1rem;
     transition: transform 0.3s;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-}
-
-.learning-image {
-    background-color: #e3f2fd;
-    background-image: 
-        radial-gradient(circle at 25% 25%, #2196f3 5%, transparent 6%),
-        radial-gradient(circle at 75% 75%, #2196f3 5%, transparent 6%),
-        radial-gradient(circle at 75% 25%, #2196f3 5%, transparent 6%),
-        radial-gradient(circle at 25% 75%, #2196f3 5%, transparent 6%),
-        radial-gradient(circle at 50% 50%, #2196f3 8%, transparent 9%);
-    background-size: 50px 50px;
-    position: relative;
-}
-
-.learning-image::after {
-    content: "📚";
-    font-size: 40px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.languages-image {
-    background-color: #e8f5e9;
-    position: relative;
-}
-
-.languages-image::after {
-    content: "🗣️ 🌏";
-    font-size: 40px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.problem-solving-image {
-    background-color: #fff3e0;
-    position: relative;
-}
-
-.problem-solving-image::after {
-    content: "🧩 🔍";
-    font-size: 40px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    object-fit: contain;
 }
 
 .interest-card:hover {
@@ -245,51 +194,7 @@ nav ul li a:hover {
     border-radius: 8px;
     margin-bottom: 1rem;
     transition: transform 0.3s;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-}
-
-.rubiks-image {
-    background-color: #e1f5fe;
-    position: relative;
-}
-
-.rubiks-image::after {
-    content: "🎮 🧩";
-    font-size: 40px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.bilingual-image {
-    background-color: #f3e5f5;
-    position: relative;
-}
-
-.bilingual-image::after {
-    content: "🇨🇦 🇨🇳";
-    font-size: 40px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.extrovert-image {
-    background-color: #e8eaf6;
-    position: relative;
-}
-
-.extrovert-image::after {
-    content: "👋 👨‍👩‍👧‍👦";
-    font-size: 40px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    object-fit: contain;
 }
 
 .fact:hover {
