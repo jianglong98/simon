@@ -14,6 +14,7 @@
                 <li><a href="#school">School Life</a></li>
                 <li><a href="#interests">Interests</a></li>
                 <li><a href="#fun-facts">Fun Facts</a></li>
+                <li><a href="#games">Games</a></li>
             </ul>
         </nav>
     </header>
@@ -123,6 +124,22 @@
                 </div>
             </div>
         </section>
+
+        <section id="games" class="section">
+            <div class="container">
+                <h2>My Games</h2>
+                <p>Here are some games I've created with the help of Cascade in Windsurf:</p>
+                
+                <div class="game-container">
+                    <h3>Snake Game</h3>
+                    <p>Use arrow keys to move the snake. Eat the red food to grow longer. Don't hit the walls or yourself!</p>
+                    <div class="game-wrapper">
+                        <canvas id="snakeCanvas" width="400" height="400"></canvas>
+                        <button onclick="startGame()" class="start-button">Start Game</button>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
     <footer>
@@ -130,5 +147,6 @@
             <p>&copy; 2025 Simon's Profile</p>
         </div>
     </footer>
+    <script src="games/snake.js"></script>
 </body>
 </html>
