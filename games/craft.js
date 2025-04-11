@@ -3,64 +3,129 @@ class CraftGame {
         this.elements = new Map();
         this.recipes = new Map();
         this.discovered = new Set();
+        this.pendingCombinations = new Map();
         
-        // Initialize basic elements
-        this.addElement('Water', '💧');
-        this.addElement('Fire', '🔥');
-        this.addElement('Earth', '🌍');
-        this.addElement('Air', '💨');
-
-        // Initialize basic recipes
-        this.addRecipe('Water', 'Earth', 'Plant', '🌱');
-        this.addRecipe('Fire', 'Earth', 'Lava', '🌋');
-        this.addRecipe('Water', 'Air', 'Cloud', '☁️');
-        this.addRecipe('Fire', 'Air', 'Smoke', '💨');
-        this.addRecipe('Plant', 'Water', 'Tree', '🌳');
-        this.addRecipe('Cloud', 'Water', 'Rain', '🌧️');
-        this.addRecipe('Lava', 'Water', 'Stone', '🪨');
-        this.addRecipe('Plant', 'Fire', 'Ash', '🌫️');
-        this.addRecipe('Tree', 'Fire', 'Wood', '🪵');
-        this.addRecipe('Stone', 'Fire', 'Metal', '⚒️');
-        this.addRecipe('Metal', 'Fire', 'Tool', '🔨');
-        this.addRecipe('Tool', 'Wood', 'Axe', '🪓');
-        this.addRecipe('Tool', 'Stone', 'Sword', '⚔️');
-        this.addRecipe('Cloud', 'Fire', 'Lightning', '⚡');
-        this.addRecipe('Lightning', 'Earth', 'Energy', '✨');
-        this.addRecipe('Energy', 'Metal', 'Electronics', '💻');
-        this.addRecipe('Water', 'Fire', 'Steam', '♨️');
-        this.addRecipe('Steam', 'Metal', 'Engine', '🔧');
-        this.addRecipe('Engine', 'Metal', 'Robot', '🤖');
-        this.addRecipe('Electronics', 'Energy', 'AI', '🧠');
+        // Load saved discoveries from localStorage
+        this.loadSavedState();
+        
+        // Initialize basic elements if no saved state
+        if (this.discovered.size === 0) {
+            this.addElement('Water', '💧');
+            this.addElement('Fire', '🔥');
+            this.addElement('Earth', '🌍');
+            this.addElement('Air', '💨');
+        }
 
         // Initialize UI elements
         this.initializeUI();
         this.updateElementList();
     }
 
+    loadSavedState() {
+        const savedElements = localStorage.getItem('craftElements');
+        const savedRecipes = localStorage.getItem('craftRecipes');
+        const savedDiscovered = localStorage.getItem('craftDiscovered');
+        
+        if (savedElements) {
+            this.elements = new Map(JSON.parse(savedElements));
+        }
+        if (savedRecipes) {
+            this.recipes = new Map(JSON.parse(savedRecipes));
+        }
+        if (savedDiscovered) {
+            this.discovered = new Set(JSON.parse(savedDiscovered));
+        }
+    }
+
+    saveState() {
+        localStorage.setItem('craftElements', JSON.stringify([...this.elements]));
+        localStorage.setItem('craftRecipes', JSON.stringify([...this.recipes]));
+        localStorage.setItem('craftDiscovered', JSON.stringify([...this.discovered]));
+    }
+
     addElement(name, emoji) {
         this.elements.set(name, emoji);
         this.discovered.add(name);
+        this.saveState();
     }
 
     addRecipe(elem1, elem2, result, emoji) {
         const key = this.getRecipeKey(elem1, elem2);
         this.recipes.set(key, { result, emoji });
         this.elements.set(result, emoji);
+        this.saveState();
     }
 
     getRecipeKey(elem1, elem2) {
         return [elem1, elem2].sort().join('_');
     }
 
-    combine(elem1, elem2) {
+    async generateCombination(elem1, elem2) {
         const key = this.getRecipeKey(elem1, elem2);
-        const recipe = this.recipes.get(key);
+        
+        // Check if we've already tried this combination
+        if (this.pendingCombinations.has(key)) {
+            return this.pendingCombinations.get(key);
+        }
+
+        // Check if we already have this recipe
+        if (this.recipes.has(key)) {
+            return this.recipes.get(key);
+        }
+
+        try {
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${OPENAI_API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: "gpt-3.5-turbo",
+                    messages: [{
+                        role: "system",
+                        content: "You are a creative combination generator for an Infinite Craft style game. Given two elements, generate a logical combination result and an appropriate emoji. Respond in JSON format only with {result: string, emoji: string}."
+                    }, {
+                        role: "user",
+                        content: `Combine these elements: ${elem1} and ${elem2}`
+                    }]
+                })
+            });
+
+            const data = await response.json();
+            const combination = JSON.parse(data.choices[0].message.content);
+            
+            // Store the new recipe
+            this.addRecipe(elem1, elem2, combination.result, combination.emoji);
+            
+            return { result: combination.result, emoji: combination.emoji };
+        } catch (error) {
+            console.error('Error generating combination:', error);
+            
+            // Generate a fallback combination if API fails
+            const fallbackResult = `${elem1}${elem2}`;
+            const fallbackEmoji = '❓';
+            
+            this.addRecipe(elem1, elem2, fallbackResult, fallbackEmoji);
+            return { result: fallbackResult, emoji: fallbackEmoji };
+        }
+    }
+
+    async combine(elem1, elem2) {
+        const key = this.getRecipeKey(elem1, elem2);
+        let recipe = this.recipes.get(key);
+        
+        if (!recipe) {
+            // Generate new combination using AI
+            recipe = await this.generateCombination(elem1, elem2);
+        }
         
         if (recipe) {
             const { result, emoji } = recipe;
             if (!this.discovered.has(result)) {
                 this.discovered.add(result);
                 this.updateElementList();
+                this.saveState();
                 return { success: true, result, emoji, isNew: true };
             }
             return { success: true, result, emoji, isNew: false };
@@ -79,7 +144,7 @@ class CraftGame {
             e.preventDefault();
         });
 
-        this.workspace.addEventListener('drop', (e) => {
+        this.workspace.addEventListener('drop', async (e) => {
             e.preventDefault();
             const draggedElement = document.querySelector('.dragging');
             if (draggedElement) {
@@ -93,14 +158,35 @@ class CraftGame {
                     // Remove the elements
                     elements.forEach(el => el.remove());
                     
+                    // Show loading state
+                    this.showLoadingState();
+                    
                     // Try to combine
-                    const result = this.combine(elem1, elem2);
+                    const result = await this.combine(elem1, elem2);
+                    
+                    // Hide loading state
+                    this.hideLoadingState();
+                    
                     if (result.success) {
                         this.showResult(result);
                     }
                 }
             }
         });
+    }
+
+    showLoadingState() {
+        const loading = document.createElement('div');
+        loading.className = 'loading-state';
+        loading.innerHTML = '🔮 Generating...';
+        this.workspace.appendChild(loading);
+    }
+
+    hideLoadingState() {
+        const loading = this.workspace.querySelector('.loading-state');
+        if (loading) {
+            loading.remove();
+        }
     }
 
     createElementDiv(name, emoji) {
