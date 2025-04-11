@@ -1,6 +1,6 @@
 class CraftGame {
     constructor() {
-        this.version = '1.0.0'; // Add version tracking
+        this.version = '1.0.0';
         this.elements = new Map();
         this.recipes = new Map();
         this.discovered = new Set();
@@ -9,8 +9,8 @@ class CraftGame {
         // Load saved state first
         this.loadSavedState();
         
-        // Add basic elements without overwriting existing ones
-        this.ensureBasicElements();
+        // Add basic elements and recipes
+        this.initializeBasicElements();
         
         // Initialize UI elements
         this.initializeUI();
@@ -20,7 +20,8 @@ class CraftGame {
         setInterval(() => this.saveState(), 5000);
     }
 
-    ensureBasicElements() {
+    initializeBasicElements() {
+        // Basic elements
         const basicElements = [
             ['Water', '💧'],
             ['Fire', '🔥'],
@@ -28,11 +29,121 @@ class CraftGame {
             ['Air', '💨']
         ];
         
+        // Add basic elements if they don't exist
         basicElements.forEach(([name, emoji]) => {
             if (!this.elements.has(name)) {
                 this.addElement(name, emoji);
             }
         });
+
+        // Basic recipes - only add if they don't exist
+        const basicRecipes = [
+            ['Water', 'Fire', 'Steam', '♨️'],
+            ['Water', 'Earth', 'Plant', '🌱'],
+            ['Fire', 'Earth', 'Lava', '🌋'],
+            ['Water', 'Air', 'Cloud', '☁️'],
+            ['Fire', 'Air', 'Smoke', '💨'],
+            ['Earth', 'Air', 'Dust', '💨'],
+            ['Plant', 'Water', 'Tree', '🌳'],
+            ['Cloud', 'Water', 'Rain', '🌧️'],
+            ['Lava', 'Water', 'Stone', '🪨'],
+            ['Plant', 'Fire', 'Ash', '🌫️'],
+            ['Tree', 'Fire', 'Wood', '🪵'],
+            ['Stone', 'Fire', 'Metal', '⚒️'],
+            ['Metal', 'Fire', 'Tool', '🔨'],
+            ['Tool', 'Wood', 'Axe', '🪓'],
+            ['Tool', 'Stone', 'Sword', '⚔️'],
+            ['Cloud', 'Fire', 'Lightning', '⚡'],
+            ['Lightning', 'Earth', 'Energy', '✨'],
+            ['Energy', 'Metal', 'Electronics', '💻'],
+            ['Steam', 'Metal', 'Engine', '🔧'],
+            ['Engine', 'Metal', 'Robot', '🤖'],
+            ['Electronics', 'Energy', 'AI', '🧠']
+        ];
+
+        basicRecipes.forEach(([elem1, elem2, result, emoji]) => {
+            const key = this.getRecipeKey(elem1, elem2);
+            if (!this.recipes.has(key)) {
+                this.addRecipe(elem1, elem2, result, emoji);
+            }
+        });
+    }
+
+    async generateCombination(elem1, elem2) {
+        const key = this.getRecipeKey(elem1, elem2);
+        
+        // Check if we've already tried this combination
+        if (this.pendingCombinations.has(key)) {
+            return this.pendingCombinations.get(key);
+        }
+
+        // Check if we already have this recipe
+        if (this.recipes.has(key)) {
+            return this.recipes.get(key);
+        }
+
+        try {
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${OPENAI_API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: "gpt-3.5-turbo",
+                    messages: [{
+                        role: "system",
+                        content: "You are a creative combination generator for an Infinite Craft style game. Given two elements, generate a logical and creative combination result with an appropriate emoji. Be creative but logical - don't just combine the words. For example: 'Water' + 'Fire' = 'Steam ♨️', 'Tree' + 'Fire' = 'Wood 🪵'. Respond in JSON format only with {result: string, emoji: string}."
+                    }, {
+                        role: "user",
+                        content: `Combine these elements: ${elem1} and ${elem2}`
+                    }]
+                })
+            });
+
+            const data = await response.json();
+            const combination = JSON.parse(data.choices[0].message.content);
+            
+            // Store the new recipe
+            this.addRecipe(elem1, elem2, combination.result, combination.emoji);
+            
+            return { result: combination.result, emoji: combination.emoji };
+        } catch (error) {
+            console.error('Error generating combination:', error);
+            
+            // Try to generate a creative fallback
+            const fallback = this.generateFallbackCombination(elem1, elem2);
+            this.addRecipe(elem1, elem2, fallback.result, fallback.emoji);
+            return fallback;
+        }
+    }
+
+    generateFallbackCombination(elem1, elem2) {
+        // List of common result patterns
+        const patterns = [
+            { check: (a, b) => b.includes('Water') || a.includes('Water'), suffix: 'juice', emoji: '🧃' },
+            { check: (a, b) => b.includes('Fire') || a.includes('Fire'), suffix: 'ash', emoji: '🌫️' },
+            { check: (a, b) => b.includes('Earth') || a.includes('Earth'), suffix: 'crystal', emoji: '💎' },
+            { check: (a, b) => b.includes('Air') || a.includes('Air'), suffix: 'cloud', emoji: '☁️' },
+            { check: (a, b) => b.includes('Metal') || a.includes('Metal'), suffix: 'machine', emoji: '⚙️' },
+            { check: (a, b) => b.includes('Energy') || a.includes('Energy'), suffix: 'power', emoji: '⚡' }
+        ];
+
+        // Try to find a matching pattern
+        for (const pattern of patterns) {
+            if (pattern.check(elem1, elem2)) {
+                return {
+                    result: elem1 + ' ' + pattern.suffix,
+                    emoji: pattern.emoji
+                };
+            }
+        }
+
+        // Default fallback
+        return {
+            result: `${elem1} essence`,
+            emoji: '✨'
+        };
     }
 
     loadSavedState() {
@@ -81,7 +192,7 @@ class CraftGame {
         this.elements = new Map();
         this.recipes = new Map();
         this.discovered = new Set();
-        this.ensureBasicElements();
+        this.initializeBasicElements();
     }
 
     saveState() {
@@ -121,57 +232,6 @@ class CraftGame {
 
     getRecipeKey(elem1, elem2) {
         return [elem1, elem2].sort().join('_');
-    }
-
-    async generateCombination(elem1, elem2) {
-        const key = this.getRecipeKey(elem1, elem2);
-        
-        // Check if we've already tried this combination
-        if (this.pendingCombinations.has(key)) {
-            return this.pendingCombinations.get(key);
-        }
-
-        // Check if we already have this recipe
-        if (this.recipes.has(key)) {
-            return this.recipes.get(key);
-        }
-
-        try {
-            const response = await fetch('https://api.openai.com/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${OPENAI_API_KEY}`
-                },
-                body: JSON.stringify({
-                    model: "gpt-3.5-turbo",
-                    messages: [{
-                        role: "system",
-                        content: "You are a creative combination generator for an Infinite Craft style game. Given two elements, generate a logical combination result and an appropriate emoji. Respond in JSON format only with {result: string, emoji: string}."
-                    }, {
-                        role: "user",
-                        content: `Combine these elements: ${elem1} and ${elem2}`
-                    }]
-                })
-            });
-
-            const data = await response.json();
-            const combination = JSON.parse(data.choices[0].message.content);
-            
-            // Store the new recipe
-            this.addRecipe(elem1, elem2, combination.result, combination.emoji);
-            
-            return { result: combination.result, emoji: combination.emoji };
-        } catch (error) {
-            console.error('Error generating combination:', error);
-            
-            // Generate a fallback combination if API fails
-            const fallbackResult = `${elem1}${elem2}`;
-            const fallbackEmoji = '❓';
-            
-            this.addRecipe(elem1, elem2, fallbackResult, fallbackEmoji);
-            return { result: fallbackResult, emoji: fallbackEmoji };
-        }
     }
 
     async combine(elem1, elem2) {
@@ -371,7 +431,7 @@ class CraftGame {
                     this.discovered = new Set(data.discovered);
                     
                     // Ensure basic elements exist
-                    this.ensureBasicElements();
+                    this.initializeBasicElements();
                     
                     // Save and update UI
                     this.saveState();
