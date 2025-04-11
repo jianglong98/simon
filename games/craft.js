@@ -1,46 +1,109 @@
 class CraftGame {
     constructor() {
+        this.version = '1.0.0'; // Add version tracking
         this.elements = new Map();
         this.recipes = new Map();
         this.discovered = new Set();
         this.pendingCombinations = new Map();
         
-        // Load saved discoveries from localStorage
+        // Load saved state first
         this.loadSavedState();
         
-        // Initialize basic elements if no saved state
-        if (this.discovered.size === 0) {
-            this.addElement('Water', '💧');
-            this.addElement('Fire', '🔥');
-            this.addElement('Earth', '🌍');
-            this.addElement('Air', '💨');
-        }
-
+        // Add basic elements without overwriting existing ones
+        this.ensureBasicElements();
+        
         // Initialize UI elements
         this.initializeUI();
         this.updateElementList();
+        
+        // Auto-save periodically
+        setInterval(() => this.saveState(), 5000);
+    }
+
+    ensureBasicElements() {
+        const basicElements = [
+            ['Water', '💧'],
+            ['Fire', '🔥'],
+            ['Earth', '🌍'],
+            ['Air', '💨']
+        ];
+        
+        basicElements.forEach(([name, emoji]) => {
+            if (!this.elements.has(name)) {
+                this.addElement(name, emoji);
+            }
+        });
     }
 
     loadSavedState() {
-        const savedElements = localStorage.getItem('craftElements');
-        const savedRecipes = localStorage.getItem('craftRecipes');
-        const savedDiscovered = localStorage.getItem('craftDiscovered');
-        
-        if (savedElements) {
-            this.elements = new Map(JSON.parse(savedElements));
-        }
-        if (savedRecipes) {
-            this.recipes = new Map(JSON.parse(savedRecipes));
-        }
-        if (savedDiscovered) {
-            this.discovered = new Set(JSON.parse(savedDiscovered));
+        try {
+            // Load saved data
+            const savedData = localStorage.getItem('craftGameData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                
+                // Version check for future compatibility
+                if (data.version === this.version) {
+                    this.elements = new Map(data.elements);
+                    this.recipes = new Map(data.recipes);
+                    this.discovered = new Set(data.discovered);
+                } else {
+                    // Handle version mismatch - preserve user data
+                    console.log('Version mismatch - migrating data');
+                    this.migrateData(data);
+                }
+            }
+        } catch (error) {
+            console.error('Error loading saved state:', error);
+            // Create backup of corrupted data
+            const timestamp = new Date().toISOString();
+            localStorage.setItem(`craftGameData_backup_${timestamp}`, localStorage.getItem('craftGameData'));
+            
+            // Reset to default state
+            this.resetToDefault();
         }
     }
 
+    migrateData(oldData) {
+        // Preserve existing discoveries and recipes
+        if (oldData.elements) {
+            this.elements = new Map(oldData.elements);
+        }
+        if (oldData.recipes) {
+            this.recipes = new Map(oldData.recipes);
+        }
+        if (oldData.discovered) {
+            this.discovered = new Set(oldData.discovered);
+        }
+    }
+
+    resetToDefault() {
+        this.elements = new Map();
+        this.recipes = new Map();
+        this.discovered = new Set();
+        this.ensureBasicElements();
+    }
+
     saveState() {
-        localStorage.setItem('craftElements', JSON.stringify([...this.elements]));
-        localStorage.setItem('craftRecipes', JSON.stringify([...this.recipes]));
-        localStorage.setItem('craftDiscovered', JSON.stringify([...this.discovered]));
+        try {
+            const data = {
+                version: this.version,
+                elements: [...this.elements],
+                recipes: [...this.recipes],
+                discovered: [...this.discovered]
+            };
+            
+            // Create backup before saving
+            const currentData = localStorage.getItem('craftGameData');
+            if (currentData) {
+                localStorage.setItem('craftGameData_backup', currentData);
+            }
+            
+            // Save new state
+            localStorage.setItem('craftGameData', JSON.stringify(data));
+        } catch (error) {
+            console.error('Error saving state:', error);
+        }
     }
 
     addElement(name, emoji) {
@@ -244,6 +307,92 @@ class CraftGame {
         const message = document.createElement('div');
         message.className = 'discovery-message';
         message.textContent = `New Discovery: ${element}!`;
+        document.body.appendChild(message);
+        
+        setTimeout(() => {
+            message.remove();
+        }, 3000);
+    }
+
+    exportData() {
+        try {
+            const data = {
+                version: this.version,
+                elements: [...this.elements],
+                recipes: [...this.recipes],
+                discovered: [...this.discovered],
+                exportDate: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `infinite-craft-data-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            this.showMessage('Data exported successfully!', 'success');
+        } catch (error) {
+            console.error('Error exporting data:', error);
+            this.showMessage('Error exporting data', 'error');
+        }
+    }
+
+    importData() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    // Validate data structure
+                    if (!data.version || !data.elements || !data.recipes || !data.discovered) {
+                        throw new Error('Invalid data format');
+                    }
+                    
+                    // Create backup before import
+                    this.saveState();
+                    localStorage.setItem('craftGameData_pre_import', localStorage.getItem('craftGameData'));
+                    
+                    // Import data
+                    this.elements = new Map(data.elements);
+                    this.recipes = new Map(data.recipes);
+                    this.discovered = new Set(data.discovered);
+                    
+                    // Ensure basic elements exist
+                    this.ensureBasicElements();
+                    
+                    // Save and update UI
+                    this.saveState();
+                    this.updateElementList();
+                    
+                    this.showMessage('Data imported successfully!', 'success');
+                } catch (error) {
+                    console.error('Error importing data:', error);
+                    this.showMessage('Error importing data: Invalid file format', 'error');
+                }
+            };
+            reader.readAsText(file);
+        };
+        
+        input.click();
+    }
+
+    showMessage(text, type = 'info') {
+        const message = document.createElement('div');
+        message.className = `discovery-message ${type}`;
+        message.textContent = text;
         document.body.appendChild(message);
         
         setTimeout(() => {

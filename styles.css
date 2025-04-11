@@ -370,13 +370,24 @@ nav ul li a:hover {
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: #4caf50;
-    color: white;
     padding: 1rem 2rem;
     border-radius: 30px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     animation: slideDown 0.5s ease-out;
     z-index: 1000;
+    color: white;
+}
+
+.discovery-message.success {
+    background-color: #4caf50;
+}
+
+.discovery-message.error {
+    background-color: #f44336;
+}
+
+.discovery-message.info {
+    background-color: #2196f3;
 }
 
 .loading-state {
@@ -402,26 +413,26 @@ nav ul li a:hover {
     border: 1px solid #ffeeba;
 }
 
-@keyframes pulse {
-    0% { transform: translate(-50%, -50%) scale(1); }
-    50% { transform: translate(-50%, -50%) scale(1.1); }
-    100% { transform: translate(-50%, -50%) scale(1); }
+.data-controls {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    justify-content: center;
 }
 
-@keyframes popIn {
-    0% { transform: scale(0.8); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
+.data-button {
+    background-color: #2196f3;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
 }
 
-@keyframes glow {
-    0% { box-shadow: 0 0 5px #4caf50; }
-    50% { box-shadow: 0 0 20px #4caf50; }
-    100% { box-shadow: 0 0 5px #4caf50; }
-}
-
-@keyframes slideDown {
-    0% { transform: translate(-50%, -100%); }
-    100% { transform: translate(-50%, 0); }
+.data-button:hover {
+    background-color: #1976d2;
 }
 
 /* Footer */
@@ -504,4 +515,26 @@ footer {
     header {
         position: relative;
     }
+}
+
+@keyframes pulse {
+    0% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.1); }
+    100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes popIn {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes glow {
+    0% { box-shadow: 0 0 5px #4caf50; }
+    50% { box-shadow: 0 0 20px #4caf50; }
+    100% { box-shadow: 0 0 5px #4caf50; }
+}
+
+@keyframes slideDown {
+    0% { transform: translate(-50%, -100%); }
+    100% { transform: translate(-50%, 0); }
 }

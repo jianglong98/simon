@@ -155,6 +155,10 @@
                             <div class="craft-stats">
                                 <span id="discoveredCount">Discovered: 0/0</span>
                                 <p class="api-note">Note: Add your OpenAI API key in games/config.js to enable AI-powered combinations!</p>
+                                <div class="data-controls">
+                                    <button onclick="window.craftGame.exportData()" class="data-button">Export Data</button>
+                                    <button onclick="window.craftGame.importData()" class="data-button">Import Data</button>
+                                </div>
                             </div>
                             <div id="elementsList" class="elements-list">
                                 <!-- Elements will be added here by JavaScript -->
