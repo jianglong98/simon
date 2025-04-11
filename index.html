@@ -132,7 +132,12 @@
                 
                 <div class="game-container">
                     <h3>Snake Game</h3>
-                    <p>Use arrow keys to move the snake. Eat the red food to grow longer. Don't hit the walls or yourself!</p>
+                    <p>Use arrow keys to move the snake. Collect different fruits for varying points:</p>
+                    <ul class="fruit-guide">
+                        <li>🍎 Apple = 10 points</li>
+                        <li>🍌 Banana = 15 points</li>
+                        <li>🍊 Orange = 5 points</li>
+                    </ul>
                     <div class="game-wrapper">
                         <canvas id="snakeCanvas" width="400" height="400"></canvas>
                         <button onclick="startGame()" class="start-button">Start Game</button>
@@ -147,6 +152,7 @@
             <p>&copy; 2025 Simon's Profile</p>
         </div>
     </footer>
+    <script src="games/fruits.js"></script>
     <script src="games/snake.js"></script>
 </body>
 </html>
