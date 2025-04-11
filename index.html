@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simon's Profile</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=2">
 </head>
 <body>
     <header>
@@ -159,24 +159,9 @@
                         </div>
                         <div id="craftWorkspace" class="craft-workspace">
                             <div class="workspace-hint">Drag elements here to combine them!</div>
-                            <div id="loadingState" class="loading-state" style="display: none;">
-                                <div class="loading-spinner"></div>
-                                <p>Generating combination...</p>
-                            </div>
                         </div>
                         <div id="elementsList" class="elements-list">
                             <!-- Elements will be added here -->
-                        </div>
-                        <!-- Reset Modal -->
-                        <div id="resetModal" class="modal">
-                            <div class="modal-content">
-                                <h2>Reset Game</h2>
-                                <p>Are you sure you want to reset the game? This will delete all your discoveries!</p>
-                                <div class="modal-buttons">
-                                    <button onclick="craftGame.confirmReset()" class="data-button warning">Yes, Reset</button>
-                                    <button onclick="craftGame.hideResetConfirmation()" class="data-button">Cancel</button>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -187,9 +172,9 @@
         <p>&copy; 2024 Simon. All rights reserved.</p>
     </footer>
     <!-- Load scripts at the end of body -->
-    <script src="games/config.js"></script>
-    <script src="games/fruits.js"></script>
-    <script src="games/snake.js"></script>
-    <script src="games/craft.js"></script>
+    <script src="games/config.js?v=2"></script>
+    <script src="games/fruits.js?v=2"></script>
+    <script src="games/snake.js?v=2"></script>
+    <script src="games/craft.js?v=2"></script>
 </body>
 </html>
