@@ -158,7 +158,18 @@
                                 <div class="data-controls">
                                     <button onclick="window.craftGame.exportData()" class="data-button">Export Data</button>
                                     <button onclick="window.craftGame.importData()" class="data-button">Import Data</button>
-                                    <button onclick="window.craftGame.resetGame()" class="data-button warning">Reset Game</button>
+                                    <button onclick="window.craftGame.showResetConfirmation()" class="data-button warning">Reset Game</button>
+                                </div>
+                            </div>
+                            <!-- Reset Confirmation Modal -->
+                            <div id="resetModal" class="modal">
+                                <div class="modal-content">
+                                    <h2>Reset Game</h2>
+                                    <p>Are you sure you want to reset the game? This will delete all your discoveries!</p>
+                                    <div class="modal-buttons">
+                                        <button onclick="window.craftGame.confirmReset()" class="data-button warning">Yes, Reset</button>
+                                        <button onclick="window.craftGame.hideResetConfirmation()" class="data-button">Cancel</button>
+                                    </div>
                                 </div>
                             </div>
                             <div id="elementsList" class="elements-list">

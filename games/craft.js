@@ -160,19 +160,30 @@ class CraftGame {
         this.saveState();
     }
 
-    resetGame() {
-        if (confirm('Are you sure you want to reset the game? This will delete all your discoveries!')) {
-            // Clear local storage
-            localStorage.removeItem('craftGameData');
-            localStorage.removeItem('craftGameData_backup');
-            
-            // Reset game state
-            this.resetToDefault();
-            
-            // Update UI
-            this.updateElementList();
-            this.showMessage('Game reset successfully!', 'success');
-        }
+    showResetConfirmation() {
+        const modal = document.getElementById('resetModal');
+        modal.classList.add('show');
+    }
+
+    hideResetConfirmation() {
+        const modal = document.getElementById('resetModal');
+        modal.classList.remove('show');
+    }
+
+    confirmReset() {
+        // Clear local storage
+        localStorage.removeItem('craftGameData');
+        localStorage.removeItem('craftGameData_backup');
+        
+        // Reset game state
+        this.resetToDefault();
+        
+        // Update UI
+        this.updateElementList();
+        this.showMessage('Game reset successfully!', 'success');
+        
+        // Hide modal
+        this.hideResetConfirmation();
     }
 
     async generateCombination(elem1, elem2) {
@@ -395,6 +406,23 @@ class CraftGame {
                 }
             }
         });
+        
+        // Setup reset button
+        const resetButton = document.getElementById('resetButton');
+        resetButton.addEventListener('click', () => {
+            this.showResetConfirmation();
+        });
+        
+        // Setup modal buttons
+        const confirmResetButton = document.getElementById('confirmResetButton');
+        confirmResetButton.addEventListener('click', () => {
+            this.confirmReset();
+        });
+        
+        const cancelResetButton = document.getElementById('cancelResetButton');
+        cancelResetButton.addEventListener('click', () => {
+            this.hideResetConfirmation();
+        });
     }
 
     showLoadingState() {
@@ -546,21 +574,6 @@ class CraftGame {
         };
         
         input.click();
-    }
-
-    resetGame() {
-        if (confirm('Are you sure you want to reset the game? This will delete all your discoveries!')) {
-            // Clear local storage
-            localStorage.removeItem('craftGameData');
-            localStorage.removeItem('craftGameData_backup');
-            
-            // Reset game state
-            this.resetToDefault();
-            
-            // Update UI
-            this.updateElementList();
-            this.showMessage('Game reset successfully!', 'success');
-        }
     }
 
     showMessage(text, type = 'info') {
