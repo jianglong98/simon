@@ -4,7 +4,7 @@ const ctx = canvas.getContext('2d');
 const GRID_SIZE = 20;
 const SNAKE_COLOR = '#4CAF50';
 const FOOD_COLOR = '#FF5252';
-const GAME_SPEED = 100;
+const GAME_SPEED = 200;
 
 let snake = [
     { x: 10, y: 10 }
@@ -13,6 +13,7 @@ let food = generateFood();
 let direction = 'right';
 let gameLoop;
 let score = 0;
+let gameStarted = false;
 
 function generateFood() {
     return {
@@ -27,21 +28,23 @@ function drawSquare(x, y, color) {
 }
 
 function drawGame() {
-    // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Draw snake
     snake.forEach(segment => {
         drawSquare(segment.x, segment.y, SNAKE_COLOR);
     });
     
-    // Draw food
     drawSquare(food.x, food.y, FOOD_COLOR);
     
-    // Draw score
     ctx.fillStyle = '#000';
     ctx.font = '20px Arial';
     ctx.fillText(`Score: ${score}`, 10, 30);
+
+    if (!gameStarted) {
+        ctx.fillStyle = '#000';
+        ctx.font = '20px Arial';
+        ctx.fillText('Press Space to Start', canvas.width/2 - 80, canvas.height/2);
+    }
 }
 
 function moveSnake() {
@@ -54,7 +57,6 @@ function moveSnake() {
         case 'right': head.x++; break;
     }
     
-    // Check for collisions
     if (head.x < 0 || head.x >= canvas.width / GRID_SIZE ||
         head.y < 0 || head.y >= canvas.height / GRID_SIZE ||
         snake.some(segment => segment.x === head.x && segment.y === head.y)) {
@@ -64,7 +66,6 @@ function moveSnake() {
     
     snake.unshift(head);
     
-    // Check if snake ate food
     if (head.x === food.x && head.y === food.y) {
         score += 10;
         food = generateFood();
@@ -74,6 +75,7 @@ function moveSnake() {
 }
 
 function gameOver() {
+    gameStarted = false;
     clearInterval(gameLoop);
     ctx.fillStyle = '#000';
     ctx.font = '40px Arial';
@@ -87,6 +89,7 @@ function startGame() {
     food = generateFood();
     direction = 'right';
     score = 0;
+    gameStarted = true;
     clearInterval(gameLoop);
     gameLoop = setInterval(() => {
         moveSnake();
@@ -94,7 +97,17 @@ function startGame() {
     }, GAME_SPEED);
 }
 
+drawGame();
+
+window.addEventListener('keydown', (event) => {
+    if(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(event.key)) {
+        event.preventDefault();
+    }
+});
+
 document.addEventListener('keydown', (event) => {
+    if (!gameStarted && event.key !== ' ') return;
+    
     switch(event.key) {
         case 'ArrowUp':
             if (direction !== 'down') direction = 'up';
