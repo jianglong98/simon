@@ -435,6 +435,14 @@ nav ul li a:hover {
     background-color: #1976d2;
 }
 
+.data-button.warning {
+    background-color: #f44336;
+}
+
+.data-button.warning:hover {
+    background-color: #d32f2f;
+}
+
 /* Footer */
 footer {
     background-color: white;

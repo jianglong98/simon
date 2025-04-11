@@ -192,6 +192,7 @@ class CraftGame {
         this.elements = new Map();
         this.recipes = new Map();
         this.discovered = new Set();
+        this.pendingCombinations = new Map();
         this.initializeBasicElements();
     }
 
@@ -447,6 +448,21 @@ class CraftGame {
         };
         
         input.click();
+    }
+
+    resetGame() {
+        if (confirm('Are you sure you want to reset the game? This will delete all your discoveries!')) {
+            // Clear local storage
+            localStorage.removeItem('craftGameData');
+            localStorage.removeItem('craftGameData_backup');
+            
+            // Reset game state
+            this.resetToDefault();
+            
+            // Update UI
+            this.updateElementList();
+            this.showMessage('Game reset successfully!', 'success');
+        }
     }
 
     showMessage(text, type = 'info') {
