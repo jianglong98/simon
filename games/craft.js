@@ -6,21 +6,39 @@ class CraftGame {
         this.discovered = new Set();
         this.pendingCombinations = new Map();
         
-        // Load saved state first
-        this.loadSavedState();
+        // Initialize UI elements first
+        this.initializeUI();
         
         // Add basic elements and recipes
         this.initializeBasicElements();
         
-        // Initialize UI elements
-        this.initializeUI();
+        // Try to load saved state
+        this.loadSavedState();
+        
+        // Make sure we have at least basic elements
+        if (this.elements.size === 0) {
+            this.initializeBasicElements();
+        }
+        
+        // Update the UI
         this.updateElementList();
         
         // Auto-save periodically
         setInterval(() => this.saveState(), 5000);
     }
 
+    addElement(name, emoji) {
+        if (!this.elements.has(name)) {
+            this.elements.set(name, emoji);
+            this.discovered.add(name);
+            return true;
+        }
+        return false;
+    }
+
     initializeBasicElements() {
+        console.log('Initializing basic elements...');
+        
         // Basic elements
         const basicElements = [
             ['Water', '💧'],
@@ -29,15 +47,12 @@ class CraftGame {
             ['Air', '💨']
         ];
         
-        // Add basic elements if they don't exist
+        // Add basic elements
         basicElements.forEach(([name, emoji]) => {
-            if (!this.elements.has(name)) {
-                this.addElement(name, emoji);
-                this.discovered.add(name);
-            }
+            this.addElement(name, emoji);
         });
 
-        // Basic recipes - only add if they don't exist
+        // Basic recipes
         const basicRecipes = [
             // Basic combinations
             ['Water', 'Fire', 'Steam', '♨️'],
@@ -45,108 +60,89 @@ class CraftGame {
             ['Fire', 'Earth', 'Lava', '🌋'],
             ['Water', 'Air', 'Cloud', '☁️'],
             ['Fire', 'Air', 'Smoke', '💨'],
-            ['Earth', 'Air', 'Dust', '💨'],
-            
-            // Plant evolution
-            ['Plant', 'Water', 'Tree', '🌳'],
-            ['Plant', 'Earth', 'Forest', '🌲'],
-            ['Plant', 'Fire', 'Ash', '🌫️'],
-            ['Plant', 'Air', 'Pollen', '🌸'],
-            
-            // Water combinations
-            ['Water', 'Cloud', 'Rain', '🌧️'],
-            ['Water', 'Dust', 'Mud', '💩'],
-            ['Water', 'Lava', 'Stone', '🪨'],
-            ['Water', 'Steam', 'Fog', '🌫️'],
-            
-            // Fire combinations
-            ['Fire', 'Tree', 'Wood', '🪵'],
-            ['Fire', 'Stone', 'Metal', '⚒️'],
-            ['Fire', 'Metal', 'Tool', '🔨'],
-            ['Fire', 'Wood', 'Charcoal', '⚫'],
-            
-            // Earth combinations
-            ['Earth', 'Stone', 'Mountain', '⛰️'],
-            ['Earth', 'Metal', 'Ore', '💎'],
-            ['Earth', 'Forest', 'Land', '🗺️'],
-            ['Earth', 'Rain', 'Grass', '🌿'],
-            
-            // Air combinations
-            ['Air', 'Cloud', 'Storm', '⛈️'],
-            ['Air', 'Mountain', 'Wind', '🌪️'],
-            ['Air', 'Rain', 'Rainbow', '🌈'],
-            ['Air', 'Smoke', 'Pollution', '🏭'],
-            
-            // Advanced combinations
-            ['Tool', 'Wood', 'Axe', '🪓'],
-            ['Tool', 'Stone', 'Sword', '⚔️'],
-            ['Tool', 'Metal', 'Machine', '⚙️'],
-            ['Cloud', 'Storm', 'Lightning', '⚡'],
-            ['Lightning', 'Earth', 'Energy', '✨'],
-            ['Energy', 'Metal', 'Electronics', '💻'],
-            ['Steam', 'Metal', 'Engine', '🔧'],
-            ['Engine', 'Metal', 'Robot', '🤖'],
-            ['Electronics', 'Energy', 'AI', '🧠'],
-            
-            // Life combinations
-            ['Water', 'Energy', 'Life', '🧬'],
-            ['Life', 'Earth', 'Animal', '🐾'],
-            ['Life', 'Air', 'Bird', '🦅'],
-            ['Life', 'Water', 'Fish', '🐠'],
-            ['Animal', 'Animal', 'Human', '👤'],
-            
-            // Human civilization
-            ['Human', 'Tool', 'Builder', '👷'],
-            ['Human', 'Fire', 'Cook', '👨‍🍳'],
-            ['Human', 'Plant', 'Farmer', '👨‍🌾'],
-            ['Human', 'Book', 'Student', '👨‍🎓'],
-            
-            // Knowledge
-            ['Human', 'Energy', 'Knowledge', '📚'],
-            ['Knowledge', 'Electronics', 'Computer', '💻'],
-            ['Knowledge', 'Human', 'Teacher', '👩‍🏫'],
-            ['Knowledge', 'Energy', 'Science', '🔬'],
-            
-            // Nature
-            ['Water', 'Life', 'Ocean', '🌊'],
-            ['Earth', 'Life', 'Forest', '🌳'],
-            ['Air', 'Life', 'Sky', '🌌'],
-            ['Fire', 'Life', 'Phoenix', '🦅'],
-            
-            // Weather
-            ['Cloud', 'Cold', 'Snow', '❄️'],
-            ['Rain', 'Cold', 'Ice', '🧊'],
-            ['Wind', 'Cloud', 'Hurricane', '🌀'],
-            ['Storm', 'Earth', 'Earthquake', '🌋'],
-            
-            // Materials
-            ['Metal', 'Knowledge', 'Steel', '⚔️'],
-            ['Stone', 'Pressure', 'Diamond', '💎'],
-            ['Wood', 'Tool', 'Paper', '📜'],
-            ['Sand', 'Fire', 'Glass', '🔍'],
-            
-            // Energy types
-            ['Fire', 'Knowledge', 'Electricity', '⚡'],
-            ['Water', 'Energy', 'Hydropower', '💧'],
-            ['Air', 'Energy', 'Wind Power', '🌪️'],
-            ['Sun', 'Energy', 'Solar Power', '☀️'],
-            
-            // Technology
-            ['Electronics', 'Knowledge', 'Internet', '🌐'],
-            ['Machine', 'AI', 'Robot', '🤖'],
-            ['Computer', 'Energy', 'Smartphone', '📱'],
-            ['Electronics', 'Glass', 'Screen', '📺']
+            ['Earth', 'Air', 'Dust', '💨']
         ];
 
+        // Add basic recipes
         basicRecipes.forEach(([elem1, elem2, result, emoji]) => {
             const key = this.getRecipeKey(elem1, elem2);
             if (!this.recipes.has(key)) {
-                this.addRecipe(elem1, elem2, result, emoji);
+                this.recipes.set(key, { result, emoji });
             }
+            // Make sure the result element exists
+            this.elements.set(result, emoji);
         });
+        
+        console.log('Basic elements initialized:', this.elements.size, 'elements');
+    }
+
+    updateElementList() {
+        const elementsList = document.getElementById('elementsList');
+        if (!elementsList) {
+            console.error('Elements list container not found!');
+            return;
+        }
+
+        // Clear the list
+        elementsList.innerHTML = '';
+
+        // Add all discovered elements
+        Array.from(this.discovered).sort().forEach(name => {
+            const emoji = this.elements.get(name);
+            const element = document.createElement('div');
+            element.className = 'element';
+            element.setAttribute('data-name', name);
+            element.draggable = true;
+            element.innerHTML = `
+                <span class="emoji">${emoji}</span>
+                <span class="name">${name}</span>
+            `;
+            elementsList.appendChild(element);
+        });
+
+        // Update the counter
+        const counter = document.getElementById('discoveredCount');
+        if (counter) {
+            counter.textContent = `Discovered: ${this.discovered.size}/${this.elements.size}`;
+        }
+    }
+
+    showResetConfirmation() {
+        console.log('Showing reset confirmation...');
+        const modal = document.getElementById('resetModal');
+        if (modal) {
+            modal.style.display = 'flex';
+        } else {
+            console.error('Reset modal not found');
+        }
+    }
+
+    hideResetConfirmation() {
+        const modal = document.getElementById('resetModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    confirmReset() {
+        console.log('Confirming reset...');
+        // Clear local storage
+        localStorage.removeItem('craftGameData');
+        localStorage.removeItem('craftGameData_backup');
+        
+        // Reset game state
+        this.resetToDefault();
+        
+        // Hide modal
+        this.hideResetConfirmation();
+        
+        // Update UI
+        this.updateElementList();
+        this.showMessage('Game reset successfully!', 'success');
     }
 
     resetToDefault() {
+        console.log('Resetting to default...');
         // Clear all data
         this.elements.clear();
         this.recipes.clear();
@@ -160,30 +156,160 @@ class CraftGame {
         this.saveState();
     }
 
-    showResetConfirmation() {
-        const modal = document.getElementById('resetModal');
-        modal.classList.add('show');
+    initializeUI() {
+        this.workspace = document.getElementById('craftWorkspace');
+        this.elementsList = document.getElementById('elementsList');
+        this.discoveredCount = document.getElementById('discoveredCount');
+        
+        // Setup drag and drop
+        this.workspace.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        this.workspace.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            const draggedElement = document.querySelector('.dragging');
+            if (draggedElement) {
+                draggedElement.classList.remove('dragging');
+                
+                const elements = document.querySelectorAll('#craftWorkspace .element');
+                if (elements.length >= 2) {
+                    const elem1 = elements[0].dataset.name;
+                    const elem2 = elements[1].dataset.name;
+                    
+                    // Remove the elements
+                    elements.forEach(el => el.remove());
+                    
+                    // Show loading state
+                    this.showLoadingState();
+                    
+                    // Try to combine
+                    const result = await this.combine(elem1, elem2);
+                    
+                    // Hide loading state
+                    this.hideLoadingState();
+                    
+                    if (result.success) {
+                        this.showResult(result);
+                    }
+                }
+            }
+        });
+        
+        // Setup reset button
+        const resetButton = document.getElementById('resetButton');
+        resetButton.addEventListener('click', () => {
+            this.showResetConfirmation();
+        });
+        
+        // Setup modal buttons
+        const confirmResetButton = document.getElementById('confirmResetButton');
+        confirmResetButton.addEventListener('click', () => {
+            this.confirmReset();
+        });
+        
+        const cancelResetButton = document.getElementById('cancelResetButton');
+        cancelResetButton.addEventListener('click', () => {
+            this.hideResetConfirmation();
+        });
     }
 
-    hideResetConfirmation() {
-        const modal = document.getElementById('resetModal');
-        modal.classList.remove('show');
+    loadSavedState() {
+        try {
+            // Load saved data
+            const savedData = localStorage.getItem('craftGameData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                
+                // Version check for future compatibility
+                if (data.version === this.version) {
+                    this.elements = new Map(data.elements);
+                    this.recipes = new Map(data.recipes);
+                    this.discovered = new Set(data.discovered);
+                } else {
+                    // Handle version mismatch - preserve user data
+                    console.log('Version mismatch - migrating data');
+                    this.migrateData(data);
+                }
+            }
+        } catch (error) {
+            console.error('Error loading saved state:', error);
+            // Create backup of corrupted data
+            const timestamp = new Date().toISOString();
+            localStorage.setItem(`craftGameData_backup_${timestamp}`, localStorage.getItem('craftGameData'));
+            
+            // Reset to default state
+            this.resetToDefault();
+        }
     }
 
-    confirmReset() {
-        // Clear local storage
-        localStorage.removeItem('craftGameData');
-        localStorage.removeItem('craftGameData_backup');
+    migrateData(oldData) {
+        // Preserve existing discoveries and recipes
+        if (oldData.elements) {
+            this.elements = new Map(oldData.elements);
+        }
+        if (oldData.recipes) {
+            this.recipes = new Map(oldData.recipes);
+        }
+        if (oldData.discovered) {
+            this.discovered = new Set(oldData.discovered);
+        }
+    }
+
+    saveState() {
+        try {
+            const data = {
+                version: this.version,
+                elements: [...this.elements],
+                recipes: [...this.recipes],
+                discovered: [...this.discovered]
+            };
+            
+            // Create backup before saving
+            const currentData = localStorage.getItem('craftGameData');
+            if (currentData) {
+                localStorage.setItem('craftGameData_backup', currentData);
+            }
+            
+            // Save new state
+            localStorage.setItem('craftGameData', JSON.stringify(data));
+        } catch (error) {
+            console.error('Error saving state:', error);
+        }
+    }
+
+    addRecipe(elem1, elem2, result, emoji) {
+        const key = this.getRecipeKey(elem1, elem2);
+        this.recipes.set(key, { result, emoji });
+        this.elements.set(result, emoji);
+        this.saveState();
+    }
+
+    getRecipeKey(elem1, elem2) {
+        return [elem1, elem2].sort().join('_');
+    }
+
+    async combine(elem1, elem2) {
+        const key = this.getRecipeKey(elem1, elem2);
+        let recipe = this.recipes.get(key);
         
-        // Reset game state
-        this.resetToDefault();
+        if (!recipe) {
+            // Generate new combination using AI
+            recipe = await this.generateCombination(elem1, elem2);
+        }
         
-        // Update UI
-        this.updateElementList();
-        this.showMessage('Game reset successfully!', 'success');
+        if (recipe) {
+            const { result, emoji } = recipe;
+            if (!this.discovered.has(result)) {
+                this.discovered.add(result);
+                this.updateElementList();
+                this.saveState();
+                return { success: true, result, emoji, isNew: true };
+            }
+            return { success: true, result, emoji, isNew: false };
+        }
         
-        // Hide modal
-        this.hideResetConfirmation();
+        return { success: false };
     }
 
     async generateCombination(elem1, elem2) {
@@ -263,168 +389,6 @@ class CraftGame {
         };
     }
 
-    loadSavedState() {
-        try {
-            // Load saved data
-            const savedData = localStorage.getItem('craftGameData');
-            if (savedData) {
-                const data = JSON.parse(savedData);
-                
-                // Version check for future compatibility
-                if (data.version === this.version) {
-                    this.elements = new Map(data.elements);
-                    this.recipes = new Map(data.recipes);
-                    this.discovered = new Set(data.discovered);
-                } else {
-                    // Handle version mismatch - preserve user data
-                    console.log('Version mismatch - migrating data');
-                    this.migrateData(data);
-                }
-            }
-        } catch (error) {
-            console.error('Error loading saved state:', error);
-            // Create backup of corrupted data
-            const timestamp = new Date().toISOString();
-            localStorage.setItem(`craftGameData_backup_${timestamp}`, localStorage.getItem('craftGameData'));
-            
-            // Reset to default state
-            this.resetToDefault();
-        }
-    }
-
-    migrateData(oldData) {
-        // Preserve existing discoveries and recipes
-        if (oldData.elements) {
-            this.elements = new Map(oldData.elements);
-        }
-        if (oldData.recipes) {
-            this.recipes = new Map(oldData.recipes);
-        }
-        if (oldData.discovered) {
-            this.discovered = new Set(oldData.discovered);
-        }
-    }
-
-    saveState() {
-        try {
-            const data = {
-                version: this.version,
-                elements: [...this.elements],
-                recipes: [...this.recipes],
-                discovered: [...this.discovered]
-            };
-            
-            // Create backup before saving
-            const currentData = localStorage.getItem('craftGameData');
-            if (currentData) {
-                localStorage.setItem('craftGameData_backup', currentData);
-            }
-            
-            // Save new state
-            localStorage.setItem('craftGameData', JSON.stringify(data));
-        } catch (error) {
-            console.error('Error saving state:', error);
-        }
-    }
-
-    addElement(name, emoji) {
-        this.elements.set(name, emoji);
-        this.discovered.add(name);
-        this.saveState();
-    }
-
-    addRecipe(elem1, elem2, result, emoji) {
-        const key = this.getRecipeKey(elem1, elem2);
-        this.recipes.set(key, { result, emoji });
-        this.elements.set(result, emoji);
-        this.saveState();
-    }
-
-    getRecipeKey(elem1, elem2) {
-        return [elem1, elem2].sort().join('_');
-    }
-
-    async combine(elem1, elem2) {
-        const key = this.getRecipeKey(elem1, elem2);
-        let recipe = this.recipes.get(key);
-        
-        if (!recipe) {
-            // Generate new combination using AI
-            recipe = await this.generateCombination(elem1, elem2);
-        }
-        
-        if (recipe) {
-            const { result, emoji } = recipe;
-            if (!this.discovered.has(result)) {
-                this.discovered.add(result);
-                this.updateElementList();
-                this.saveState();
-                return { success: true, result, emoji, isNew: true };
-            }
-            return { success: true, result, emoji, isNew: false };
-        }
-        
-        return { success: false };
-    }
-
-    initializeUI() {
-        this.workspace = document.getElementById('craftWorkspace');
-        this.elementsList = document.getElementById('elementsList');
-        this.discoveredCount = document.getElementById('discoveredCount');
-        
-        // Setup drag and drop
-        this.workspace.addEventListener('dragover', (e) => {
-            e.preventDefault();
-        });
-
-        this.workspace.addEventListener('drop', async (e) => {
-            e.preventDefault();
-            const draggedElement = document.querySelector('.dragging');
-            if (draggedElement) {
-                draggedElement.classList.remove('dragging');
-                
-                const elements = document.querySelectorAll('#craftWorkspace .element');
-                if (elements.length >= 2) {
-                    const elem1 = elements[0].dataset.name;
-                    const elem2 = elements[1].dataset.name;
-                    
-                    // Remove the elements
-                    elements.forEach(el => el.remove());
-                    
-                    // Show loading state
-                    this.showLoadingState();
-                    
-                    // Try to combine
-                    const result = await this.combine(elem1, elem2);
-                    
-                    // Hide loading state
-                    this.hideLoadingState();
-                    
-                    if (result.success) {
-                        this.showResult(result);
-                    }
-                }
-            }
-        });
-        
-        // Setup reset button
-        const resetButton = document.getElementById('resetButton');
-        resetButton.addEventListener('click', () => {
-            this.showResetConfirmation();
-        });
-        
-        // Setup modal buttons
-        const confirmResetButton = document.getElementById('confirmResetButton');
-        confirmResetButton.addEventListener('click', () => {
-            this.confirmReset();
-        });
-        
-        const cancelResetButton = document.getElementById('cancelResetButton');
-        cancelResetButton.addEventListener('click', () => {
-            this.hideResetConfirmation();
-        });
-    }
-
     showLoadingState() {
         const loading = document.createElement('div');
         loading.className = 'loading-state';
@@ -458,19 +422,6 @@ class CraftGame {
         });
 
         return div;
-    }
-
-    updateElementList() {
-        this.elementsList.innerHTML = '';
-        Array.from(this.discovered)
-            .sort()
-            .forEach(name => {
-                const emoji = this.elements.get(name);
-                const div = this.createElementDiv(name, emoji);
-                this.elementsList.appendChild(div);
-            });
-        
-        this.discoveredCount.textContent = `Discovered: ${this.discovered.size}/${this.elements.size}`;
     }
 
     showResult(result) {
