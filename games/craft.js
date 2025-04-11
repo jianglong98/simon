@@ -575,7 +575,8 @@ class CraftGame {
     }
 }
 
-// Initialize game when the page loads
-window.addEventListener('load', () => {
+// Initialize game when document is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    // Create game instance and expose it globally
     window.craftGame = new CraftGame();
 });
