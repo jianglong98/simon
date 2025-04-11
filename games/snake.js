@@ -5,10 +5,23 @@ const GRID_SIZE = 20;
 const SNAKE_COLOR = '#4CAF50';
 const GAME_SPEED = 200;
 
+// Fruit types and their properties
 const FRUITS = {
-    apple: { emoji: '🍎', points: 10, probability: 0.5 },
-    banana: { emoji: '🍌', points: 20, probability: 0.3 },
-    cherry: { emoji: '🍒', points: 30, probability: 0.2 }
+    apple: {
+        emoji: '🍎',
+        points: 10,
+        probability: 0.5  // 50% chance of spawning
+    },
+    banana: {
+        emoji: '🍌',
+        points: 15,
+        probability: 0.3  // 30% chance of spawning
+    },
+    orange: {
+        emoji: '🍊',
+        points: 5,
+        probability: 0.2  // 20% chance of spawning
+    }
 };
 
 let snake = [
@@ -87,14 +100,6 @@ function drawGame() {
         ctx.font = '20px Arial';
         ctx.textAlign = 'center';
         ctx.fillText('Press Space to Start', canvas.width/2, canvas.height/2);
-        
-        // Draw fruit guide
-        ctx.font = '16px Arial';
-        let yPos = canvas.height/2 + 40;
-        for (const fruit in FRUITS) {
-            ctx.fillText(`${FRUITS[fruit].emoji} = ${FRUITS[fruit].points} points`, canvas.width/2, yPos);
-            yPos += 25;
-        }
     }
 }
 
