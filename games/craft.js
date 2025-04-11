@@ -33,32 +33,109 @@ class CraftGame {
         basicElements.forEach(([name, emoji]) => {
             if (!this.elements.has(name)) {
                 this.addElement(name, emoji);
+                this.discovered.add(name);
             }
         });
 
         // Basic recipes - only add if they don't exist
         const basicRecipes = [
+            // Basic combinations
             ['Water', 'Fire', 'Steam', '♨️'],
             ['Water', 'Earth', 'Plant', '🌱'],
             ['Fire', 'Earth', 'Lava', '🌋'],
             ['Water', 'Air', 'Cloud', '☁️'],
             ['Fire', 'Air', 'Smoke', '💨'],
             ['Earth', 'Air', 'Dust', '💨'],
+            
+            // Plant evolution
             ['Plant', 'Water', 'Tree', '🌳'],
-            ['Cloud', 'Water', 'Rain', '🌧️'],
-            ['Lava', 'Water', 'Stone', '🪨'],
+            ['Plant', 'Earth', 'Forest', '🌲'],
             ['Plant', 'Fire', 'Ash', '🌫️'],
-            ['Tree', 'Fire', 'Wood', '🪵'],
-            ['Stone', 'Fire', 'Metal', '⚒️'],
-            ['Metal', 'Fire', 'Tool', '🔨'],
+            ['Plant', 'Air', 'Pollen', '🌸'],
+            
+            // Water combinations
+            ['Water', 'Cloud', 'Rain', '🌧️'],
+            ['Water', 'Dust', 'Mud', '💩'],
+            ['Water', 'Lava', 'Stone', '🪨'],
+            ['Water', 'Steam', 'Fog', '🌫️'],
+            
+            // Fire combinations
+            ['Fire', 'Tree', 'Wood', '🪵'],
+            ['Fire', 'Stone', 'Metal', '⚒️'],
+            ['Fire', 'Metal', 'Tool', '🔨'],
+            ['Fire', 'Wood', 'Charcoal', '⚫'],
+            
+            // Earth combinations
+            ['Earth', 'Stone', 'Mountain', '⛰️'],
+            ['Earth', 'Metal', 'Ore', '💎'],
+            ['Earth', 'Forest', 'Land', '🗺️'],
+            ['Earth', 'Rain', 'Grass', '🌿'],
+            
+            // Air combinations
+            ['Air', 'Cloud', 'Storm', '⛈️'],
+            ['Air', 'Mountain', 'Wind', '🌪️'],
+            ['Air', 'Rain', 'Rainbow', '🌈'],
+            ['Air', 'Smoke', 'Pollution', '🏭'],
+            
+            // Advanced combinations
             ['Tool', 'Wood', 'Axe', '🪓'],
             ['Tool', 'Stone', 'Sword', '⚔️'],
-            ['Cloud', 'Fire', 'Lightning', '⚡'],
+            ['Tool', 'Metal', 'Machine', '⚙️'],
+            ['Cloud', 'Storm', 'Lightning', '⚡'],
             ['Lightning', 'Earth', 'Energy', '✨'],
             ['Energy', 'Metal', 'Electronics', '💻'],
             ['Steam', 'Metal', 'Engine', '🔧'],
             ['Engine', 'Metal', 'Robot', '🤖'],
-            ['Electronics', 'Energy', 'AI', '🧠']
+            ['Electronics', 'Energy', 'AI', '🧠'],
+            
+            // Life combinations
+            ['Water', 'Energy', 'Life', '🧬'],
+            ['Life', 'Earth', 'Animal', '🐾'],
+            ['Life', 'Air', 'Bird', '🦅'],
+            ['Life', 'Water', 'Fish', '🐠'],
+            ['Animal', 'Animal', 'Human', '👤'],
+            
+            // Human civilization
+            ['Human', 'Tool', 'Builder', '👷'],
+            ['Human', 'Fire', 'Cook', '👨‍🍳'],
+            ['Human', 'Plant', 'Farmer', '👨‍🌾'],
+            ['Human', 'Book', 'Student', '👨‍🎓'],
+            
+            // Knowledge
+            ['Human', 'Energy', 'Knowledge', '📚'],
+            ['Knowledge', 'Electronics', 'Computer', '💻'],
+            ['Knowledge', 'Human', 'Teacher', '👩‍🏫'],
+            ['Knowledge', 'Energy', 'Science', '🔬'],
+            
+            // Nature
+            ['Water', 'Life', 'Ocean', '🌊'],
+            ['Earth', 'Life', 'Forest', '🌳'],
+            ['Air', 'Life', 'Sky', '🌌'],
+            ['Fire', 'Life', 'Phoenix', '🦅'],
+            
+            // Weather
+            ['Cloud', 'Cold', 'Snow', '❄️'],
+            ['Rain', 'Cold', 'Ice', '🧊'],
+            ['Wind', 'Cloud', 'Hurricane', '🌀'],
+            ['Storm', 'Earth', 'Earthquake', '🌋'],
+            
+            // Materials
+            ['Metal', 'Knowledge', 'Steel', '⚔️'],
+            ['Stone', 'Pressure', 'Diamond', '💎'],
+            ['Wood', 'Tool', 'Paper', '📜'],
+            ['Sand', 'Fire', 'Glass', '🔍'],
+            
+            // Energy types
+            ['Fire', 'Knowledge', 'Electricity', '⚡'],
+            ['Water', 'Energy', 'Hydropower', '💧'],
+            ['Air', 'Energy', 'Wind Power', '🌪️'],
+            ['Sun', 'Energy', 'Solar Power', '☀️'],
+            
+            // Technology
+            ['Electronics', 'Knowledge', 'Internet', '🌐'],
+            ['Machine', 'AI', 'Robot', '🤖'],
+            ['Computer', 'Energy', 'Smartphone', '📱'],
+            ['Electronics', 'Glass', 'Screen', '📺']
         ];
 
         basicRecipes.forEach(([elem1, elem2, result, emoji]) => {
@@ -67,6 +144,35 @@ class CraftGame {
                 this.addRecipe(elem1, elem2, result, emoji);
             }
         });
+    }
+
+    resetToDefault() {
+        // Clear all data
+        this.elements.clear();
+        this.recipes.clear();
+        this.discovered.clear();
+        this.pendingCombinations.clear();
+        
+        // Reinitialize with basic elements and recipes
+        this.initializeBasicElements();
+        
+        // Save the reset state
+        this.saveState();
+    }
+
+    resetGame() {
+        if (confirm('Are you sure you want to reset the game? This will delete all your discoveries!')) {
+            // Clear local storage
+            localStorage.removeItem('craftGameData');
+            localStorage.removeItem('craftGameData_backup');
+            
+            // Reset game state
+            this.resetToDefault();
+            
+            // Update UI
+            this.updateElementList();
+            this.showMessage('Game reset successfully!', 'success');
+        }
     }
 
     async generateCombination(elem1, elem2) {
@@ -186,14 +292,6 @@ class CraftGame {
         if (oldData.discovered) {
             this.discovered = new Set(oldData.discovered);
         }
-    }
-
-    resetToDefault() {
-        this.elements = new Map();
-        this.recipes = new Map();
-        this.discovered = new Set();
-        this.pendingCombinations = new Map();
-        this.initializeBasicElements();
     }
 
     saveState() {
