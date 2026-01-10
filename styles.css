@@ -63,7 +63,7 @@ nav ul li a:hover {
     align-items: center;
     justify-content: center;
     text-align: center;
-    background: linear-gradient(rgba(74, 144, 226, 0.7), rgba(243, 156, 18, 0.7)), url('simon.jpg');
+    background: linear-gradient(rgba(52, 152, 219, 0.5), rgba(41, 128, 185, 0.5)), url('simon.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
