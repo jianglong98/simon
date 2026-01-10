@@ -52,6 +52,22 @@ function drawFruit(x, y, emoji) {
 
 function drawGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw grid background aligned to GRID_SIZE
+    ctx.strokeStyle = 'rgba(0,0,0,0.06)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x <= canvas.width; x += GRID_SIZE) {
+        ctx.beginPath();
+        ctx.moveTo(x + 0.5, 0);
+        ctx.lineTo(x + 0.5, canvas.height);
+        ctx.stroke();
+    }
+    for (let y = 0; y <= canvas.height; y += GRID_SIZE) {
+        ctx.beginPath();
+        ctx.moveTo(0, y + 0.5);
+        ctx.lineTo(canvas.width, y + 0.5);
+        ctx.stroke();
+    }
     
     // Draw snake
     snake.forEach(segment => {
@@ -129,7 +145,10 @@ function gameOver() {
 }
 
 window.startGame = function() {
-    snake = [{ x: 10, y: 10 }];
+    // Start snake roughly at canvas center
+    const cols = Math.floor(canvas.width / GRID_SIZE);
+    const rows = Math.floor(canvas.height / GRID_SIZE);
+    snake = [{ x: Math.floor(cols / 2), y: Math.floor(rows / 2) }];
     food = generateFood();
     direction = 'right';
     nextDirection = null;
@@ -151,7 +170,9 @@ document.addEventListener('DOMContentLoaded', () => {
     startButton.addEventListener('click', startGame);
 
     // Initialize game state
-    snake = [{ x: 10, y: 10 }];
+    const cols = Math.floor(canvas.width / GRID_SIZE);
+    const rows = Math.floor(canvas.height / GRID_SIZE);
+    snake = [{ x: Math.floor(cols / 2), y: Math.floor(rows / 2) }];
     direction = 'right';
     nextDirection = null;
     score = 0;
