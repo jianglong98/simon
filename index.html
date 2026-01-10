@@ -138,9 +138,17 @@
                         <li>🍌 Banana = 15 points</li>
                         <li>🍊 Orange = 5 points</li>
                     </ul>
-                    <div class="game-wrapper">
-                        <canvas id="snakeCanvas" width="640" height="640"></canvas>
-                        <button id="startGameBtn" class="start-button">Start Game</button>
+                    <div class="game-wrapper snake-wrapper">
+                        <div class="snake-play">
+                            <canvas id="snakeCanvas" width="640" height="640"></canvas>
+                            <button id="startGameBtn" class="start-button">Start Game</button>
+                        </div>
+                        <aside class="game-sidebar">
+                            <div class="high-score-box">
+                                <h4>High Score</h4>
+                                <div id="highScore">0</div>
+                            </div>
+                        </aside>
                     </div>
                 </div>
 

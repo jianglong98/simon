@@ -1,6 +1,6 @@
 // Initialize game variables
 let canvas, ctx;
-let snake, items, direction, nextDirection, gameLoop, spawnLoop, score, gameStarted;
+let snake, items, direction, nextDirection, gameLoop, spawnLoop, score, gameStarted, highScore;
 
 // Constants
 const GRID_SIZE = 20;
@@ -125,6 +125,10 @@ function drawGame() {
         ctx.textAlign = 'center';
         ctx.fillText('Press Space to Start', canvas.width/2, canvas.height/2);
     }
+
+    // Update high score display in DOM if present
+    const hsEl = document.getElementById('highScore');
+    if (hsEl) hsEl.innerText = highScore || 0;
 }
 
 function moveSnake() {
@@ -165,6 +169,11 @@ function moveSnake() {
             // remove the consumed fruit
             items.splice(itemIndex, 1);
             // snake grows: do not pop tail
+            // update high score if needed
+            if (score > highScore) {
+                highScore = score;
+                try { localStorage.setItem('snakeHighScore', String(highScore)); } catch (e) {}
+            }
         }
     } else {
         snake.pop();
@@ -221,6 +230,8 @@ document.addEventListener('DOMContentLoaded', () => {
     direction = 'right';
     nextDirection = null;
     score = 0;
+    // load high score from localStorage
+    try { highScore = parseInt(localStorage.getItem('snakeHighScore')) || 0; } catch (e) { highScore = 0; }
     gameStarted = false;
     items = [];
 
