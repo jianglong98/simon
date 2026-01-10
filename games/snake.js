@@ -1,6 +1,6 @@
 // Initialize game variables
 let canvas, ctx;
-let snake, food, direction, nextDirection, gameLoop, score, gameStarted;
+let snake, items, direction, nextDirection, gameLoop, spawnLoop, score, gameStarted;
 
 // Constants
 const GRID_SIZE = 20;
@@ -28,14 +28,36 @@ function getRandomFruit() {
 
 function generateFood() {
     let newFood;
+    const cols = Math.floor(canvas.width / GRID_SIZE);
+    const rows = Math.floor(canvas.height / GRID_SIZE);
     do {
         newFood = {
-            x: Math.floor(Math.random() * (canvas.width / GRID_SIZE)),
-            y: Math.floor(Math.random() * (canvas.height / GRID_SIZE)),
+            x: Math.floor(Math.random() * cols),
+            y: Math.floor(Math.random() * rows),
             fruit: getRandomFruit()
         };
-    } while (snake.some(segment => segment.x === newFood.x && segment.y === newFood.y));
+        // avoid placing on snake or other items
+    } while (snake.some(segment => segment.x === newFood.x && segment.y === newFood.y) ||
+             items.some(it => it.x === newFood.x && it.y === newFood.y));
     return newFood;
+}
+
+function spawnItem() {
+    // 20% chance to spawn a bomb
+    const bombProbability = 0.2;
+    if (Math.random() < bombProbability) {
+        // spawn bomb
+        const cols = Math.floor(canvas.width / GRID_SIZE);
+        const rows = Math.floor(canvas.height / GRID_SIZE);
+        let b;
+        do {
+            b = { x: Math.floor(Math.random() * cols), y: Math.floor(Math.random() * rows), bomb: true };
+        } while (snake.some(segment => segment.x === b.x && segment.y === b.y) ||
+                 items.some(it => it.x === b.x && it.y === b.y));
+        items.push(b);
+    } else {
+        items.push(generateFood());
+    }
 }
 
 function drawSquare(x, y, color) {
@@ -74,8 +96,14 @@ function drawGame() {
         drawSquare(segment.x, segment.y, SNAKE_COLOR);
     });
     
-    // Draw food
-    drawFruit(food.x, food.y, food.fruit.emoji);
+    // Draw items (fruits and bombs)
+    items.forEach(it => {
+        if (it.bomb) {
+            drawFruit(it.x, it.y, '💣');
+        } else {
+            drawFruit(it.x, it.y, it.fruit.emoji);
+        }
+    });
     
     // Draw score
     ctx.fillStyle = '#000';
@@ -83,10 +111,12 @@ function drawGame() {
     ctx.textAlign = 'left';
     ctx.fillText(`Score: ${score}`, 10, 30);
 
-    // Draw current fruit info
+    // Draw items info
+    const fruitCount = items.filter(i => !i.bomb).length;
+    const bombCount = items.filter(i => i.bomb).length;
     ctx.fillStyle = '#666';
     ctx.font = '16px Arial';
-    ctx.fillText(`${food.fruit.emoji} = ${food.fruit.points} points`, 10, 60);
+    ctx.fillText(`Fruits: ${fruitCount}  Bombs: ${bombCount}`, 10, 60);
 
     // Draw instructions if game hasn't started
     if (!gameStarted) {
@@ -123,10 +153,19 @@ function moveSnake() {
     
     snake.unshift(head);
     
-    // Check if snake ate food
-    if (head.x === food.x && head.y === food.y) {
-        score += food.fruit.points;
-        food = generateFood();
+    // Check if snake hit an item
+    const itemIndex = items.findIndex(it => it.x === head.x && it.y === head.y);
+    if (itemIndex !== -1) {
+        const it = items[itemIndex];
+        if (it.bomb) {
+            gameOver();
+            return;
+        } else {
+            score += it.fruit.points;
+            // remove the consumed fruit
+            items.splice(itemIndex, 1);
+            // snake grows: do not pop tail
+        }
     } else {
         snake.pop();
     }
@@ -149,7 +188,11 @@ window.startGame = function() {
     const cols = Math.floor(canvas.width / GRID_SIZE);
     const rows = Math.floor(canvas.height / GRID_SIZE);
     snake = [{ x: Math.floor(cols / 2), y: Math.floor(rows / 2) }];
-    food = generateFood();
+    items = [];
+    // spawn an initial item and start periodic spawns every 5 seconds
+    spawnItem();
+    clearInterval(spawnLoop);
+    spawnLoop = setInterval(spawnItem, 5000);
     direction = 'right';
     nextDirection = null;
     score = 0;
@@ -177,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
     nextDirection = null;
     score = 0;
     gameStarted = false;
-    food = generateFood();
+    items = [];
 
     // Initial draw
     drawGame();
