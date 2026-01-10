@@ -140,7 +140,7 @@
                     </ul>
                     <div class="game-wrapper">
                         <canvas id="snakeCanvas" width="400" height="400"></canvas>
-                        <button onclick="startGame()" class="start-button">Start Game</button>
+                        <button id="startGameBtn" class="start-button">Start Game</button>
                     </div>
                 </div>
 
@@ -150,11 +150,10 @@
                     <div class="craft-game">
                         <div class="craft-stats">
                             <span id="discoveredCount">Discovered: 0/0</span>
-                            <p class="api-note">Note: Add your OpenAI API key in games/config.js to enable AI-powered combinations!</p>
                             <div class="data-controls">
-                                <button onclick="craftGame.exportData()" class="data-button">Export Data</button>
-                                <button onclick="craftGame.importData()" class="data-button">Import Data</button>
-                                <button onclick="craftGame.showResetConfirmation()" class="data-button warning">Reset Game</button>
+                                <button id="exportDataBtn" class="data-button">Export Data</button>
+                                <button id="importDataBtn" class="data-button">Import Data</button>
+                                <button id="resetGameBtn" class="data-button warning">Reset Game</button>
                             </div>
                         </div>
                         <div id="craftWorkspace" class="craft-workspace">

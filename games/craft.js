@@ -322,9 +322,61 @@ class CraftGame {
             this.resetGame();
         }
     }
+
+    exportData() {
+        try {
+            const dataStr = localStorage.getItem('craftGameData');
+            if (!dataStr) {
+                this.showMessage('No data to export.', 'error');
+                return;
+            }
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'craft-game-save.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            this.showMessage('Data exported successfully!', 'success');
+        } catch (error) {
+            console.error('Error exporting data:', error);
+            this.showMessage('Failed to export data.', 'error');
+        }
+    }
+
+    importData() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'application/json';
+        input.onchange = e => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = readerEvent => {
+                try {
+                    const content = readerEvent.target.result;
+                    JSON.parse(content); // Validate JSON
+                    localStorage.setItem('craftGameData', content);
+                    this.showMessage('Data imported successfully! Reloading...', 'success');
+                    setTimeout(() => window.location.reload(), 1500);
+                } catch (error) {
+                    this.showMessage('Invalid save file.', 'error');
+                }
+            };
+            reader.readAsText(file);
+        };
+        input.click();
+    }
 }
 
 // Initialize game when document is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.craftGame = new CraftGame();
+
+    // Attach event listeners for craft game buttons
+    document.getElementById('exportDataBtn').addEventListener('click', () => craftGame.exportData());
+    document.getElementById('importDataBtn').addEventListener('click', () => craftGame.importData());
+    document.getElementById('resetGameBtn').addEventListener('click', () => craftGame.showResetConfirmation());
 });

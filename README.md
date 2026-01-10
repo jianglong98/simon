@@ -9,7 +9,7 @@ This repository contains the source code for Simon's personal website, hosted at
 
 ## Features
 - Personal background and introduction
-- School life at Fairview PS
+- School life at Fairview PS (3590 Joan Drive, Mississauga, ON, Canada, L5B 1T8)
 - Hobbies and interests
 - Academic subjects
 - Fun facts

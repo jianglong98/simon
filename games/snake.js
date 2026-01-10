@@ -1,37 +1,11 @@
-const canvas = document.getElementById('snakeCanvas');
-const ctx = canvas.getContext('2d');
+// Initialize game variables
+let canvas, ctx;
+let snake, food, direction, gameLoop, score, gameStarted;
 
+// Constants
 const GRID_SIZE = 20;
 const SNAKE_COLOR = '#4CAF50';
 const GAME_SPEED = 200;
-
-// Fruit types and their properties
-const FRUITS = {
-    apple: {
-        emoji: '🍎',
-        points: 10,
-        probability: 0.5  // 50% chance of spawning
-    },
-    banana: {
-        emoji: '🍌',
-        points: 15,
-        probability: 0.3  // 30% chance of spawning
-    },
-    orange: {
-        emoji: '🍊',
-        points: 5,
-        probability: 0.2  // 20% chance of spawning
-    }
-};
-
-let snake = [
-    { x: 10, y: 10 }
-];
-let food = generateFood();
-let direction = 'right';
-let gameLoop;
-let score = 0;
-let gameStarted = false;
 
 function getRandomFruit() {
     const rand = Math.random();
@@ -53,11 +27,15 @@ function getRandomFruit() {
 }
 
 function generateFood() {
-    return {
-        x: Math.floor(Math.random() * (canvas.width / GRID_SIZE)),
-        y: Math.floor(Math.random() * (canvas.height / GRID_SIZE)),
-        fruit: getRandomFruit()
-    };
+    let newFood;
+    do {
+        newFood = {
+            x: Math.floor(Math.random() * (canvas.width / GRID_SIZE)),
+            y: Math.floor(Math.random() * (canvas.height / GRID_SIZE)),
+            fruit: getRandomFruit()
+        };
+    } while (snake.some(segment => segment.x === newFood.x && segment.y === newFood.y));
+    return newFood;
 }
 
 function drawSquare(x, y, color) {
@@ -144,7 +122,7 @@ function gameOver() {
     ctx.fillText(`Final Score: ${score}`, canvas.width/2, canvas.height/2 + 80);
 }
 
-function startGame() {
+window.startGame = function() {
     snake = [{ x: 10, y: 10 }];
     food = generateFood();
     direction = 'right';
@@ -157,34 +135,50 @@ function startGame() {
     }, GAME_SPEED);
 }
 
-// Initial draw
-drawGame();
+// Initialize game when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    canvas = document.getElementById('snakeCanvas');
+    ctx = canvas.getContext('2d');
 
-// Prevent arrow keys from scrolling
-window.addEventListener('keydown', (event) => {
-    if(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(event.key)) {
-        event.preventDefault();
-    }
-});
+    const startButton = document.getElementById('startGameBtn');
+    startButton.addEventListener('click', startGame);
 
-document.addEventListener('keydown', (event) => {
-    if (!gameStarted && event.key !== ' ') return;
-    
-    switch(event.key) {
-        case 'ArrowUp':
-            if (direction !== 'down') direction = 'up';
-            break;
-        case 'ArrowDown':
-            if (direction !== 'up') direction = 'down';
-            break;
-        case 'ArrowLeft':
-            if (direction !== 'right') direction = 'left';
-            break;
-        case 'ArrowRight':
-            if (direction !== 'left') direction = 'right';
-            break;
-        case ' ':
-            startGame();
-            break;
-    }
+    // Initialize game state
+    snake = [{ x: 10, y: 10 }];
+    direction = 'right';
+    score = 0;
+    gameStarted = false;
+    food = generateFood();
+
+    // Initial draw
+    drawGame();
+
+    // Prevent arrow keys from scrolling
+    window.addEventListener('keydown', (event) => {
+        if(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(event.key)) {
+            event.preventDefault();
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (!gameStarted && event.key !== ' ') return;
+        
+        switch(event.key) {
+            case 'ArrowUp':
+                if (direction !== 'down') direction = 'up';
+                break;
+            case 'ArrowDown':
+                if (direction !== 'up') direction = 'down';
+                break;
+            case 'ArrowLeft':
+                if (direction !== 'right') direction = 'left';
+                break;
+            case 'ArrowRight':
+                if (direction !== 'left') direction = 'right';
+                break;
+            case ' ':
+                startGame();
+                break;
+        }
+    });
 });
