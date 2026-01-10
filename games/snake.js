@@ -3,7 +3,8 @@ let canvas, ctx;
 let snake, items, direction, nextDirection, gameLoop, spawnLoop, score, gameStarted, highScore;
 
 // Constants
-const GRID_SIZE = 20;
+// Larger grid cell reduces number of boxes and increases visual size
+const GRID_SIZE = 32;
 const SNAKE_COLOR = '#4CAF50';
 const GAME_SPEED = 200;
 
@@ -62,11 +63,13 @@ function spawnItem() {
 
 function drawSquare(x, y, color) {
     ctx.fillStyle = color;
-    ctx.fillRect(x * GRID_SIZE, y * GRID_SIZE, GRID_SIZE - 2, GRID_SIZE - 2);
+    // leave a small gap so grid lines show
+    ctx.fillRect(x * GRID_SIZE, y * GRID_SIZE, GRID_SIZE - 4, GRID_SIZE - 4);
 }
 
 function drawFruit(x, y, emoji) {
-    ctx.font = '16px Arial';
+    // scale emoji/font to grid size
+    ctx.font = `${Math.floor(GRID_SIZE * 0.8)}px Arial`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(emoji, x * GRID_SIZE + GRID_SIZE/2, y * GRID_SIZE + GRID_SIZE/2);
@@ -198,7 +201,14 @@ window.startGame = function() {
     // Start snake roughly at canvas center
     const cols = Math.floor(canvas.width / GRID_SIZE);
     const rows = Math.floor(canvas.height / GRID_SIZE);
-    snake = [{ x: Math.floor(cols / 2), y: Math.floor(rows / 2) }];
+    // make initial snake longer (3 segments)
+    const cx = Math.floor(cols / 2);
+    const cy = Math.floor(rows / 2);
+    snake = [
+        { x: cx, y: cy },
+        { x: cx - 1, y: cy },
+        { x: cx - 2, y: cy }
+    ];
     items = [];
     // spawn an initial item and start periodic spawns every 5 seconds
     spawnItem();
@@ -226,7 +236,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize game state
     const cols = Math.floor(canvas.width / GRID_SIZE);
     const rows = Math.floor(canvas.height / GRID_SIZE);
-    snake = [{ x: Math.floor(cols / 2), y: Math.floor(rows / 2) }];
+    const cx = Math.floor(cols / 2);
+    const cy = Math.floor(rows / 2);
+    snake = [
+        { x: cx, y: cy },
+        { x: cx - 1, y: cy },
+        { x: cx - 2, y: cy }
+    ];
     direction = 'right';
     nextDirection = null;
     score = 0;
