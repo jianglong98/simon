@@ -1,6 +1,6 @@
 // Initialize game variables
 let canvas, ctx;
-let snake, food, direction, gameLoop, score, gameStarted;
+let snake, food, direction, nextDirection, gameLoop, score, gameStarted;
 
 // Constants
 const GRID_SIZE = 20;
@@ -82,6 +82,12 @@ function drawGame() {
 }
 
 function moveSnake() {
+    // Apply only one queued direction change per tick to avoid instant reversals
+    if (nextDirection) {
+        direction = nextDirection;
+        nextDirection = null;
+    }
+
     const head = { ...snake[0] };
     
     switch(direction) {
@@ -126,6 +132,7 @@ window.startGame = function() {
     snake = [{ x: 10, y: 10 }];
     food = generateFood();
     direction = 'right';
+    nextDirection = null;
     score = 0;
     gameStarted = true;
     clearInterval(gameLoop);
@@ -146,6 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize game state
     snake = [{ x: 10, y: 10 }];
     direction = 'right';
+    nextDirection = null;
     score = 0;
     gameStarted = false;
     food = generateFood();
@@ -162,23 +170,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('keydown', (event) => {
         if (!gameStarted && event.key !== ' ') return;
-        
-        switch(event.key) {
-            case 'ArrowUp':
-                if (direction !== 'down') direction = 'up';
-                break;
-            case 'ArrowDown':
-                if (direction !== 'up') direction = 'down';
-                break;
-            case 'ArrowLeft':
-                if (direction !== 'right') direction = 'left';
-                break;
-            case 'ArrowRight':
-                if (direction !== 'left') direction = 'right';
-                break;
-            case ' ':
-                startGame();
-                break;
+
+        // Map arrow keys to directions
+        const keyToDir = {
+            'ArrowUp': 'up',
+            'ArrowDown': 'down',
+            'ArrowLeft': 'left',
+            'ArrowRight': 'right'
+        };
+
+        if (event.key === ' ') {
+            startGame();
+            return;
         }
+
+        const desired = keyToDir[event.key];
+        if (!desired) return;
+
+        // Prevent reversing: check against current direction
+        const opposites = { up: 'down', down: 'up', left: 'right', right: 'left' };
+        if (opposites[desired] === direction) return;
+
+        // Queue the direction change so only one change happens per tick
+        if (!nextDirection) nextDirection = desired;
     });
 });
