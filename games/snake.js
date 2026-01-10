@@ -174,6 +174,8 @@ function moveSnake() {
 function gameOver() {
     gameStarted = false;
     clearInterval(gameLoop);
+    // stop spawning items when game ends
+    clearInterval(spawnLoop);
     ctx.fillStyle = '#000';
     ctx.font = '40px Arial';
     ctx.textAlign = 'center';
@@ -192,7 +194,7 @@ window.startGame = function() {
     // spawn an initial item and start periodic spawns every 5 seconds
     spawnItem();
     clearInterval(spawnLoop);
-    spawnLoop = setInterval(spawnItem, 5000);
+    spawnLoop = setInterval(spawnItem, 2000);
     direction = 'right';
     nextDirection = null;
     score = 0;
