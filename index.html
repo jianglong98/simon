@@ -8,10 +8,7 @@
 </head>
 <body>
     <header>
-        <div style="position: fixed; top: 20px; right: 20px; z-index: 999; display: flex; gap: 10px;">
-            <button id="musicBtn1" style="background: none; border: none; font-size: 2.5rem; cursor: pointer; opacity: 0.7;" title="Play Song 1">📻</button>
-            <button id="musicBtn2" style="background: none; border: none; font-size: 2.5rem; cursor: pointer; opacity: 0.7;" title="Play Song 2">🎵</button>
-        </div>
+        <button id="musicBtn" style="position: fixed; top: 20px; right: 20px; background: none; border: none; font-size: 2.5rem; cursor: pointer; z-index: 999; opacity: 0.7;" title="Toggle Playlist">📻</button>
         <nav>
             <ul>
                 <li><a href="#about">About Me</a></li>
@@ -23,48 +20,61 @@
         </nav>
     </header>
 
-    <!-- Hidden Music Iframes -->
+    <!-- Hidden Music Iframes (Playlist) -->
     <iframe id="musicPlayer1" width="0" height="0" src="https://www.youtube.com/embed/9v9-Nw4nAZg?autoplay=0&controls=0&fs=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="display:none;"></iframe>
     <iframe id="musicPlayer2" width="0" height="0" src="https://www.youtube.com/embed/jj0ChLVTpaA?autoplay=0&controls=0&fs=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="display:none;"></iframe>
 
     <script>
-        let currentSong = null; // 'song1', 'song2', or null
-        const musicBtn1 = document.getElementById('musicBtn1');
-        const musicBtn2 = document.getElementById('musicBtn2');
+        let isPlaying = false;
+        let currentTrack = 1; // 1 or 2
+        const musicBtn = document.getElementById('musicBtn');
         const musicPlayer1 = document.getElementById('musicPlayer1');
         const musicPlayer2 = document.getElementById('musicPlayer2');
         
-        function updateButtons() {
-            musicBtn1.style.opacity = currentSong === 'song1' ? '1' : '0.7';
-            musicBtn2.style.opacity = currentSong === 'song2' ? '1' : '0.7';
+        function playSong(trackNum) {
+            if (trackNum === 1) {
+                musicPlayer1.src = musicPlayer1.src.replace('autoplay=0', 'autoplay=1');
+                musicPlayer2.src = musicPlayer2.src.replace('autoplay=1', 'autoplay=0');
+            } else {
+                musicPlayer2.src = musicPlayer2.src.replace('autoplay=0', 'autoplay=1');
+                musicPlayer1.src = musicPlayer1.src.replace('autoplay=1', 'autoplay=0');
+            }
         }
         
-        musicBtn1.addEventListener('click', function() {
-            if (currentSong === 'song1') {
-                // Stop song 1
-                musicPlayer1.src = musicPlayer1.src.replace('autoplay=1', 'autoplay=0');
-                currentSong = null;
-            } else {
-                // Play song 1, stop song 2
-                musicPlayer2.src = musicPlayer2.src.replace('autoplay=1', 'autoplay=0');
-                musicPlayer1.src = musicPlayer1.src.replace('autoplay=0', 'autoplay=1');
-                currentSong = 'song1';
+        function stopAllSongs() {
+            musicPlayer1.src = musicPlayer1.src.replace('autoplay=1', 'autoplay=0');
+            musicPlayer2.src = musicPlayer2.src.replace('autoplay=1', 'autoplay=0');
+        }
+        
+        // Detect when song 1 ends and auto-play song 2
+        musicPlayer1.addEventListener('ended', function() {
+            if (isPlaying && currentTrack === 1) {
+                currentTrack = 2;
+                playSong(2);
             }
-            updateButtons();
         });
         
-        musicBtn2.addEventListener('click', function() {
-            if (currentSong === 'song2') {
-                // Stop song 2
-                musicPlayer2.src = musicPlayer2.src.replace('autoplay=1', 'autoplay=0');
-                currentSong = null;
-            } else {
-                // Play song 2, stop song 1
-                musicPlayer1.src = musicPlayer1.src.replace('autoplay=1', 'autoplay=0');
-                musicPlayer2.src = musicPlayer2.src.replace('autoplay=0', 'autoplay=1');
-                currentSong = 'song2';
+        // Optional: Loop back to song 1 when song 2 ends
+        musicPlayer2.addEventListener('ended', function() {
+            if (isPlaying && currentTrack === 2) {
+                currentTrack = 1;
+                playSong(1);
             }
-            updateButtons();
+        });
+        
+        musicBtn.addEventListener('click', function() {
+            if (!isPlaying) {
+                // Start playlist with song 1
+                isPlaying = true;
+                currentTrack = 1;
+                playSong(1);
+                musicBtn.style.opacity = '1';
+            } else {
+                // Stop playlist
+                isPlaying = false;
+                stopAllSongs();
+                musicBtn.style.opacity = '0.7';
+            }
         });
     </script>
 
