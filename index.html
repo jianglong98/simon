@@ -26,48 +26,61 @@
 
     <script>
         let isPlaying = false;
-        let currentTrack = 1; // 1 or 2
+        let currentTrack = 1;
+        let playlistTimeout = null;
+        
         const musicBtn = document.getElementById('musicBtn');
         const musicPlayer1 = document.getElementById('musicPlayer1');
         const musicPlayer2 = document.getElementById('musicPlayer2');
+        
+        // Approximate song durations (in milliseconds) - adjust if needed
+        const SONG1_DURATION = 240000; // ~4 minutes
+        const SONG2_DURATION = 180000; // ~3 minutes
         
         function playSong(trackNum) {
             if (trackNum === 1) {
                 musicPlayer1.src = musicPlayer1.src.replace('autoplay=0', 'autoplay=1');
                 musicPlayer2.src = musicPlayer2.src.replace('autoplay=1', 'autoplay=0');
+                currentTrack = 1;
             } else {
                 musicPlayer2.src = musicPlayer2.src.replace('autoplay=0', 'autoplay=1');
                 musicPlayer1.src = musicPlayer1.src.replace('autoplay=1', 'autoplay=0');
+                currentTrack = 2;
             }
         }
         
         function stopAllSongs() {
             musicPlayer1.src = musicPlayer1.src.replace('autoplay=1', 'autoplay=0');
             musicPlayer2.src = musicPlayer2.src.replace('autoplay=1', 'autoplay=0');
+            if (playlistTimeout) clearTimeout(playlistTimeout);
         }
         
-        // Detect when song 1 ends and auto-play song 2
-        musicPlayer1.addEventListener('ended', function() {
-            if (isPlaying && currentTrack === 1) {
-                currentTrack = 2;
-                playSong(2);
+        function scheduleNextTrack() {
+            if (!isPlaying) return;
+            
+            if (playlistTimeout) clearTimeout(playlistTimeout);
+            
+            if (currentTrack === 1) {
+                // Schedule song 2 to start after song 1 duration
+                playlistTimeout = setTimeout(() => {
+                    if (isPlaying) playSong(2);
+                    scheduleNextTrack();
+                }, SONG1_DURATION);
+            } else {
+                // Schedule song 1 to start after song 2 duration (loop)
+                playlistTimeout = setTimeout(() => {
+                    if (isPlaying) playSong(1);
+                    scheduleNextTrack();
+                }, SONG2_DURATION);
             }
-        });
-        
-        // Optional: Loop back to song 1 when song 2 ends
-        musicPlayer2.addEventListener('ended', function() {
-            if (isPlaying && currentTrack === 2) {
-                currentTrack = 1;
-                playSong(1);
-            }
-        });
+        }
         
         musicBtn.addEventListener('click', function() {
             if (!isPlaying) {
                 // Start playlist with song 1
                 isPlaying = true;
-                currentTrack = 1;
                 playSong(1);
+                scheduleNextTrack();
                 musicBtn.style.opacity = '1';
             } else {
                 // Stop playlist
