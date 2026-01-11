@@ -8,7 +8,10 @@
 </head>
 <body>
     <header>
-        <button id="musicBtn" style="position: fixed; top: 20px; right: 20px; background: none; border: none; font-size: 2.5rem; cursor: pointer; z-index: 999;" title="Toggle Music">📻</button>
+        <div style="position: fixed; top: 20px; right: 20px; z-index: 999; display: flex; gap: 10px;">
+            <button id="musicBtn1" style="background: none; border: none; font-size: 2.5rem; cursor: pointer; opacity: 0.7;" title="Play Song 1">📻</button>
+            <button id="musicBtn2" style="background: none; border: none; font-size: 2.5rem; cursor: pointer; opacity: 0.7;" title="Play Song 2">🎵</button>
+        </div>
         <nav>
             <ul>
                 <li><a href="#about">About Me</a></li>
@@ -20,26 +23,48 @@
         </nav>
     </header>
 
-    <!-- Hidden Music Iframe -->
-    <iframe id="musicPlayer" width="0" height="0" src="https://www.youtube.com/embed/9v9-Nw4nAZg?autoplay=0&controls=0&fs=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="display:none;"></iframe>
+    <!-- Hidden Music Iframes -->
+    <iframe id="musicPlayer1" width="0" height="0" src="https://www.youtube.com/embed/9v9-Nw4nAZg?autoplay=0&controls=0&fs=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="display:none;"></iframe>
+    <iframe id="musicPlayer2" width="0" height="0" src="https://www.youtube.com/embed/jj0ChLVTpaA?autoplay=0&controls=0&fs=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="display:none;"></iframe>
 
     <script>
-        let isPlaying = false;
-        const musicBtn = document.getElementById('musicBtn');
-        const musicPlayer = document.getElementById('musicPlayer');
+        let currentSong = null; // 'song1', 'song2', or null
+        const musicBtn1 = document.getElementById('musicBtn1');
+        const musicBtn2 = document.getElementById('musicBtn2');
+        const musicPlayer1 = document.getElementById('musicPlayer1');
+        const musicPlayer2 = document.getElementById('musicPlayer2');
         
-        musicBtn.addEventListener('click', function() {
-            if (!isPlaying) {
-                // Play music
-                musicPlayer.src = musicPlayer.src.replace('autoplay=0', 'autoplay=1');
-                musicBtn.style.opacity = '0.5';
-                isPlaying = true;
+        function updateButtons() {
+            musicBtn1.style.opacity = currentSong === 'song1' ? '1' : '0.7';
+            musicBtn2.style.opacity = currentSong === 'song2' ? '1' : '0.7';
+        }
+        
+        musicBtn1.addEventListener('click', function() {
+            if (currentSong === 'song1') {
+                // Stop song 1
+                musicPlayer1.src = musicPlayer1.src.replace('autoplay=1', 'autoplay=0');
+                currentSong = null;
             } else {
-                // Stop music
-                musicPlayer.src = musicPlayer.src.replace('autoplay=1', 'autoplay=0');
-                musicBtn.style.opacity = '1';
-                isPlaying = false;
+                // Play song 1, stop song 2
+                musicPlayer2.src = musicPlayer2.src.replace('autoplay=1', 'autoplay=0');
+                musicPlayer1.src = musicPlayer1.src.replace('autoplay=0', 'autoplay=1');
+                currentSong = 'song1';
             }
+            updateButtons();
+        });
+        
+        musicBtn2.addEventListener('click', function() {
+            if (currentSong === 'song2') {
+                // Stop song 2
+                musicPlayer2.src = musicPlayer2.src.replace('autoplay=1', 'autoplay=0');
+                currentSong = null;
+            } else {
+                // Play song 2, stop song 1
+                musicPlayer1.src = musicPlayer1.src.replace('autoplay=1', 'autoplay=0');
+                musicPlayer2.src = musicPlayer2.src.replace('autoplay=0', 'autoplay=1');
+                currentSong = 'song2';
+            }
+            updateButtons();
         });
     </script>
 
