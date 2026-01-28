@@ -1,13 +1,13 @@
 # Simon's Personal Website
 
-**Last Updated:** 2026-01-28 05:41:56 UTC
+**Last Updated:** 2026-01-28 05:45:34 UTC
 
 This repository contains the source code for Simon's personal website, hosted at [simon.otalkie.com](https://simon.otalkie.com).
 
 ## Overview
 - **Purpose**: Personal profile website showcasing Simon's background, interests, and school life
 - **Hosting**: Static web pages hosted in Google Cloud Platform (GCP) bucket
-- **Bucket Location**: `gs://simonotalkiecom`
+- **Bucket Location**: `gs://simon.otalkie.com`
 
 ## Features
 - Personal background and introduction
@@ -28,4 +28,4 @@ To run the website locally:
 3. Deploy to GCP bucket for production
 
 ## Deployment
-Files are deployed to the GCP bucket: `gs://simoni.otalkie.com`
+Files are deployed to the GCP bucket: `gs://simon.otalkie.com`
