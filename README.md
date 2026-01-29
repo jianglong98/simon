@@ -1,6 +1,7 @@
 # Simon's Personal Website
 
-**Last Updated:** 2026-01-28 05:52:02 UTC
+**Last Updated:** 2026-01-29 03:22:46 UTC
+simon long first update
 
 This repository contains the source code for Simon's personal website, hosted at [simon.otalkie.com](https://simon.otalkie.com).
 
@@ -33,3 +34,4 @@ Files are deployed to the GCP bucket: `gs://simon.otalkie.com`
 ## References
 - **GitHub Repository**: https://github.com/jianglong98/simon.git
 - **GCP Console**: https://console.cloud.google.com/welcome?project=dish-452018
+

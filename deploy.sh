@@ -33,7 +33,7 @@ echo "🔄 Syncing to GitHub..."
 if command -v git &> /dev/null && [ -d .git ]; then
     # Update README timestamp
     TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
-    sed -i '' "s/\*\*Last Updated:\*\* .*/\*\*Last Updated:\*\* $TIMESTAMP/" "$DIR/README.md"
+    sed -i "s/\*\*Last Updated:\*\* .*/\*\*Last Updated:\*\* $TIMESTAMP/" "$DIR/README.md"
 
     git add .
     # Commit only if there are staged changes
