@@ -14,22 +14,8 @@ BUCKET="gs://simon.otalkie.com"
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$DIR"
 
-echo "🚀 Deploying simon.otalkie.com to $BUCKET..."
-
-# 1. Sync files (upload new/changed files, delete removed ones)
-# Exclude .git folder, .DS_Store, .sh scripts, and README to keep bucket clean
-gsutil -m rsync -r -x "\.git.*|\.DS_Store|.*\.sh$|README\.md" "$DIR" "$BUCKET"
-
-# 2. Ensure all files are publicly readable
-gsutil iam ch allUsers:objectViewer "$BUCKET"
-
-# 3. Configure the bucket to serve index.html as the main page
-gsutil web set -m index.html "$BUCKET"
-
-echo "✅ Deployment complete!"
-
-# 4. Sync to GitHub
-echo "🔄 Syncing to GitHub..."
+# 1. Sync with GitHub (Commit & Pull updates)
+echo "🔄 Checking for updates from GitHub..."
 if command -v git &> /dev/null && [ -d .git ]; then
     # Update README timestamp
     TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
@@ -45,6 +31,25 @@ if command -v git &> /dev/null && [ -d .git ]; then
         git commit -m "Deploy update: $(date '+%Y-%m-%d %H:%M:%S')"
     fi
     git pull --rebase
+fi
+
+echo "🚀 Deploying simon.otalkie.com to $BUCKET..."
+
+# 2. Sync files (upload new/changed files, delete removed ones)
+# Exclude .git folder, .DS_Store, .sh scripts, and README to keep bucket clean
+gsutil -m rsync -r -x "\.git.*|\.DS_Store|.*\.sh$|README\.md" "$DIR" "$BUCKET"
+
+# 3. Ensure all files are publicly readable
+gsutil iam ch allUsers:objectViewer "$BUCKET"
+
+# 4. Configure the bucket to serve index.html as the main page
+gsutil web set -m index.html "$BUCKET"
+
+echo "✅ Deployment complete!"
+
+# 5. Push to GitHub
+if command -v git &> /dev/null && [ -d .git ]; then
+    echo "🔄 Pushing to GitHub..."
     git push
     echo "✅ GitHub sync complete!"
 fi
