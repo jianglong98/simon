@@ -8,7 +8,7 @@ BUCKET="gs://simon.otalkie.com"
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$DIR"
 
-# Detect OS
+# Detect OS - important for correctly handling sed
 OS="$(uname)"
 
 # Check if gsutil is installed (Windows often uses gsutil.cmd)
@@ -18,7 +18,7 @@ elif command -v gsutil.cmd &> /dev/null; then
     GSUTIL_CMD="gsutil.cmd"
 else
     echo "❌ Error: gsutil command not found. Please install the Google Cloud SDK and add it to your PATH."
-    exit 1
+    exit 1 # Exit if gsutil is not found
 fi
 
 # 1. Sync with GitHub (Commit & Pull updates)
@@ -72,3 +72,11 @@ if command -v git &> /dev/null && [ -d .git ]; then
     git push
     echo "✅ GitHub sync complete!"
 fi
+
+# Final message
+echo "🎉 Deployment process completed."
+echo "  - Website URL: https://simon.otalkie.com"
+echo "  - GCP Bucket: $BUCKET"
+
+#Give user some helpful advice
+echo "Make sure you have set up billing correctly for your GCP project."
