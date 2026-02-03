@@ -4,7 +4,11 @@
 set -e
 
 # Check if gsutil is installed
-if ! command -v gsutil &> /dev/null; then
+if command -v gsutil &> /dev/null; then
+    GSUTIL_CMD="gsutil"
+elif command -v gsutil.cmd &> /dev/null; then
+    GSUTIL_CMD="gsutil.cmd"
+else
     echo "❌ Error: gsutil command not found. Please install the Google Cloud SDK."
     exit 1
 fi
@@ -43,13 +47,13 @@ echo "🚀 Deploying simon.otalkie.com to $BUCKET..."
 
 # 2. Sync files (upload new/changed files, delete removed ones)
 # Exclude .git folder, .DS_Store, .sh scripts, and README to keep bucket clean
-gsutil -m rsync -r -x "\.git.*|\.DS_Store|.*\.sh$|README\.md" "$DIR" "$BUCKET"
+$GSUTIL_CMD -m rsync -r -x "\.git.*|\.DS_Store|.*\.sh$|README\.md" "$DIR" "$BUCKET"
 
 # 3. Ensure all files are publicly readable
-gsutil iam ch allUsers:objectViewer "$BUCKET"
+$GSUTIL_CMD iam ch allUsers:objectViewer "$BUCKET"
 
 # 4. Configure the bucket to serve index.html as the main page
-gsutil web set -m index.html "$BUCKET"
+$GSUTIL_CMD web set -m index.html "$BUCKET"
 
 echo "✅ Deployment complete!"
 
