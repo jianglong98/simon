@@ -59,8 +59,8 @@ nav ul li a:hover {
 /* Music Notes Animation */
 .music-notes {
     position: fixed;
-    top: 15px;
-    right: 25px;
+    top: 30px;
+    right: 70px;
     width: 40px;
     height: 40px;
     z-index: 1001;
@@ -91,6 +91,26 @@ nav ul li a:hover {
     20% { opacity: 1; }
     80% { opacity: 0.8; }
     100% { transform: translateY(-50px) rotate(20deg); opacity: 0; }
+}
+
+/* Now Playing Toast */
+.now-playing-toast {
+    position: fixed;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(33, 33, 33, 0.9);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    z-index: 2000;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: top 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.now-playing-toast.show {
+    top: 80px;
 }
 
 /* Hero Section */

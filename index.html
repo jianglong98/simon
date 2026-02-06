@@ -13,6 +13,7 @@
         <div class="note">♩</div>
         <div class="note">♬</div>
     </div>
+    <div id="nowPlayingToast" class="now-playing-toast"></div>
     <button id="musicBtn" style="position: fixed; top: 20px; right: 20px; background: none; border: none; font-size: 2.5rem; cursor: pointer; z-index: 1002; opacity: 0.7;" title="Toggle Playlist">📻</button>
     <header>
         <nav>
@@ -51,6 +52,8 @@
 
         const musicBtn = document.getElementById('musicBtn');
         const musicNotes = document.getElementById('musicNotes');
+        const nowPlayingToast = document.getElementById('nowPlayingToast');
+        let toastTimeout;
         
         // Setup event listeners for the audio player
         audioPlayer.onended = function() {
@@ -62,6 +65,20 @@
             if (isPlaying) setTimeout(playRandomSong, 1000);
         };
             
+        function showNowPlaying(songPath) {
+            const filename = songPath.split('/').pop().split('.')[0];
+            // Format: message_1 -> Message 1
+            const songName = filename.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            
+            nowPlayingToast.textContent = `🎵 Now Playing: ${songName}`;
+            nowPlayingToast.classList.add('show');
+            
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                nowPlayingToast.classList.remove('show');
+            }, 3000);
+        }
+
         function playRandomSong() {
             if (playlist.length === 0) return;
 
@@ -73,6 +90,7 @@
             audioPlayer.volume = 0.5;
             
             audioPlayer.play().catch(e => console.log("Audio play failed:", e));
+            showNowPlaying(songPath);
         }
         
         musicBtn.addEventListener('click', function() {
