@@ -29,6 +29,10 @@ if command -v git &> /dev/null && [ -d .git ]; then
         sed -i "s/\*\*Last Updated:\*\* .*/\*\*Last Updated:\*\* $TIMESTAMP/" "$DIR/README.md"
     fi
 
+    # Ensure music folder is removed from git tracking to prevent large file upload errors
+    # This keeps files on disk but removes them from the git index
+    git rm -r --cached music/ 2>/dev/null || true
+
     git add .
     # Commit only if there are staged changes
     if ! git diff --cached --quiet; then
