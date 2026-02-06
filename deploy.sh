@@ -21,13 +21,6 @@ cd "$DIR"
 # 1. Sync with GitHub (Commit & Pull updates)
 echo "🔄 Checking for updates from GitHub..."
 if command -v git &> /dev/null && [ -d .git ]; then
-    # Pull latest changes first to ensure we are up-to-date
-    echo "⬇️ Pulling latest changes..."
-    if ! git pull --rebase --autostash; then
-        echo "❌ Error: Git pull failed. Please resolve conflicts or check your connection before deploying."
-        exit 1
-    fi
-
     # Update README timestamp
     TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
     if [[ "$(uname)" == "Darwin" ]]; then
@@ -40,6 +33,13 @@ if command -v git &> /dev/null && [ -d .git ]; then
     # Commit only if there are staged changes
     if ! git diff --cached --quiet; then
         git commit -m "Deploy update: $(date '+%Y-%m-%d %H:%M:%S')"
+    fi
+
+    # Pull latest changes after committing local changes
+    echo "⬇️ Pulling latest changes..."
+    if ! git pull --rebase; then
+        echo "❌ Error: Git pull failed. Please resolve conflicts or check your connection before deploying."
+        exit 1
     fi
 fi
 
