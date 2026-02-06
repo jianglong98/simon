@@ -56,6 +56,43 @@ nav ul li a:hover {
     color: var(--primary-color);
 }
 
+/* Music Notes Animation */
+.music-notes {
+    position: fixed;
+    top: 15px;
+    right: 25px;
+    width: 40px;
+    height: 40px;
+    z-index: 998;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.music-notes.playing {
+    opacity: 1;
+}
+
+.note {
+    position: absolute;
+    font-size: 20px;
+    color: var(--secondary-color);
+    opacity: 0;
+    animation: floatUp 2s infinite linear;
+}
+
+.note:nth-child(1) { animation-delay: 0s; left: 0; color: var(--primary-color); }
+.note:nth-child(2) { animation-delay: 0.6s; left: 20px; font-size: 24px; }
+.note:nth-child(3) { animation-delay: 1.2s; left: 10px; color: #e74c3c; }
+.note:nth-child(4) { animation-delay: 1.8s; left: 30px; font-size: 18px; }
+
+@keyframes floatUp {
+    0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 0.8; }
+    100% { transform: translateY(-50px) rotate(20deg); opacity: 0; }
+}
+
 /* Hero Section */
 .hero {
     height: 100vh;

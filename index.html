@@ -8,6 +8,12 @@
 </head>
 <body>
     <header>
+        <div id="musicNotes" class="music-notes">
+            <div class="note">♪</div>
+            <div class="note">♫</div>
+            <div class="note">♩</div>
+            <div class="note">♬</div>
+        </div>
         <button id="musicBtn" style="position: fixed; top: 20px; right: 20px; background: none; border: none; font-size: 2.5rem; cursor: pointer; z-index: 999; opacity: 0.7;" title="Toggle Playlist">📻</button>
         <nav>
             <ul>
@@ -21,69 +27,69 @@
     </header>
 
     <!-- Music Players -->
-    <iframe id="musicPlayer1" style="display:none;" width="0" height="0" src="https://www.youtube.com/embed/9v9-Nw4nAZg?autoplay=0&controls=0&modestbranding=1" allow="autoplay"></iframe>
-    <iframe id="musicPlayer2" style="display:none;" width="0" height="0" src="https://www.youtube.com/embed/jj0ChLVTpaA?autoplay=0&controls=0&modestbranding=1" allow="autoplay"></iframe>
+    <!-- Audio handled via JavaScript -->
 
     <script>
         let isPlaying = false;
-        let currentTrack = 1;
-        let playlistTimeout = null;
+        let currentAudio = null;
         
+        // Playlist of music files in the /music directory
+        // TODO: Update these filenames to match the actual .wav files in your /music folder
+        const playlist = [
+            'music/message_1.wav',
+            'music/message_2.wav',
+            'music/message_3.wav',
+            'music/message_4.wav',
+            'music/message_5.wav',
+            'music/message_6.wav',
+            'music/message_7.wav',
+            'music/message_8.wav',
+            'music/message_9.wav',
+            'music/message_10.wav'
+        ];
+
         const musicBtn = document.getElementById('musicBtn');
-        const player1 = document.getElementById('musicPlayer1');
-        const player2 = document.getElementById('musicPlayer2');
+        const musicNotes = document.getElementById('musicNotes');
         
-        function playSong(trackNum) {
-            if (trackNum === 1) {
-                // Play song 1 by setting autoplay in src
-                player1.src = 'https://www.youtube.com/embed/9v9-Nw4nAZg?autoplay=1&controls=0&modestbranding=1';
-                player2.src = 'https://www.youtube.com/embed/jj0ChLVTpaA?autoplay=0&controls=0&modestbranding=1';
-                currentTrack = 1;
-            } else if (trackNum === 2) {
-                // Play song 2
-                player2.src = 'https://www.youtube.com/embed/jj0ChLVTpaA?autoplay=1&controls=0&modestbranding=1';
-                player1.src = 'https://www.youtube.com/embed/9v9-Nw4nAZg?autoplay=0&controls=0&modestbranding=1';
-                currentTrack = 2;
-            }
-        }
-        
-        function stopAllSongs() {
-            player1.src = 'https://www.youtube.com/embed/9v9-Nw4nAZg?autoplay=0&controls=0&modestbranding=1';
-            player2.src = 'https://www.youtube.com/embed/jj0ChLVTpaA?autoplay=0&controls=0&modestbranding=1';
-            if (playlistTimeout) clearTimeout(playlistTimeout);
-        }
-        
-        function scheduleNextTrack() {
-            if (!isPlaying) return;
-            if (playlistTimeout) clearTimeout(playlistTimeout);
             
-            if (currentTrack === 1) {
-                playlistTimeout = setTimeout(() => {
-                    if (isPlaying) {
-                        playSong(2);
-                        scheduleNextTrack();
-                    }
-                }, 240000); // ~4 min
-            } else {
-                playlistTimeout = setTimeout(() => {
-                    if (isPlaying) {
-                        playSong(1);
-                        scheduleNextTrack();
-                    }
-                }, 180000); // ~3 min
+        function playRandomSong() {
+            if (playlist.length === 0) return;
+
+            // Stop current song if any
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
             }
+            
+            // Pick a random song
+            const randomIndex = Math.floor(Math.random() * playlist.length);
+            const songPath = playlist[randomIndex];
+            
+            currentAudio = new Audio(songPath);
+            currentAudio.volume = 0.5;
+            
+            // When song ends, play next random song
+            currentAudio.onended = function() {
+                if (isPlaying) playRandomSong();
+            };
+            
+            currentAudio.play().catch(e => console.log("Audio play failed:", e));
         }
         
         musicBtn.addEventListener('click', function() {
             if (!isPlaying) {
                 isPlaying = true;
-                playSong(1);
-                scheduleNextTrack();
+                playRandomSong();
                 musicBtn.style.opacity = '1';
+                musicNotes.classList.add('playing');
             } else {
                 isPlaying = false;
-                stopAllSongs();
+                if (currentAudio) {
+                    currentAudio.pause();
+                    currentAudio = null;
+                }
                 musicBtn.style.opacity = '0.7';
+                musicNotes.classList.remove('playing');
             }
         });
     </script>
