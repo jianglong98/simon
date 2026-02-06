@@ -31,7 +31,8 @@
 
     <script>
         let isPlaying = false;
-        let currentAudio = null;
+        // Reuse a single Audio object for better iOS compatibility
+        const audioPlayer = new Audio();
         
         // Playlist of music files in the /music directory
         // TODO: Update these filenames to match the actual .wav files in your /music folder
@@ -51,29 +52,27 @@
         const musicBtn = document.getElementById('musicBtn');
         const musicNotes = document.getElementById('musicNotes');
         
+        // Setup event listeners for the audio player
+        audioPlayer.onended = function() {
+            if (isPlaying) playRandomSong();
+        };
+        
+        audioPlayer.onerror = function(e) {
+            console.log("Audio error:", e);
+            if (isPlaying) setTimeout(playRandomSong, 1000);
+        };
             
         function playRandomSong() {
             if (playlist.length === 0) return;
 
-            // Stop current song if any
-            if (currentAudio) {
-                currentAudio.pause();
-                currentAudio = null;
-            }
-            
             // Pick a random song
             const randomIndex = Math.floor(Math.random() * playlist.length);
             const songPath = playlist[randomIndex];
             
-            currentAudio = new Audio(songPath);
-            currentAudio.volume = 0.5;
+            audioPlayer.src = songPath;
+            audioPlayer.volume = 0.5;
             
-            // When song ends, play next random song
-            currentAudio.onended = function() {
-                if (isPlaying) playRandomSong();
-            };
-            
-            currentAudio.play().catch(e => console.log("Audio play failed:", e));
+            audioPlayer.play().catch(e => console.log("Audio play failed:", e));
         }
         
         musicBtn.addEventListener('click', function() {
@@ -84,10 +83,7 @@
                 musicNotes.classList.add('playing');
             } else {
                 isPlaying = false;
-                if (currentAudio) {
-                    currentAudio.pause();
-                    currentAudio = null;
-                }
+                audioPlayer.pause();
                 musicBtn.style.opacity = '0.7';
                 musicNotes.classList.remove('playing');
             }
