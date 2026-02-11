@@ -1,0 +1,5 @@
+# Force all text files to use LF line endings
+* text=auto eol=lf
+
+# Except .bat files which should use CRLF
+*.bat text eol=crlf
