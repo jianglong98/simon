@@ -269,6 +269,27 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="game-container">
+                    <h3>Incline</h3>
+                    <p>Use left/right arrow keys to steer the ball down an endless incline. Avoid obstacles as speed increases.</p>
+                    <div class="game-wrapper incline-wrapper">
+                        <div class="incline-play">
+                            <canvas id="inclineCanvas" width="900" height="400"></canvas>
+                            <button id="inclineStartBtn" class="start-button">Start Game</button>
+                        </div>
+                        <aside class="game-sidebar">
+                            <div class="score-box">
+                                <h4>Score</h4>
+                                <div id="inclineScore">0</div>
+                            </div>
+                            <div class="high-score-box">
+                                <h4>High Score</h4>
+                                <div id="inclineHighScore">0</div>
+                            </div>
+                        </aside>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
@@ -280,5 +301,6 @@
     <script src="games/fruits.js?v=2"></script>
     <script src="games/snake.js?v=2"></script>
     <script src="games/craft.js?v=2"></script>
+    <script src="games/incline.js?v=2"></script>
 </body>
 </html>
