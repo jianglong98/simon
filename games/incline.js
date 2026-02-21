@@ -68,9 +68,9 @@
 		width = canvas.width = canvas.clientWidth || canvas.width;
 		height = canvas.height = canvas.clientHeight || canvas.height;
 		ball.x = width / 2;
-		// place ball near top so player has more time to react
-		// position the ball a bit lower on the incline
-		ball.y = Math.max(40, Math.floor(height * 0.28));
+		// place ball nearer the bottom so it's closer to the incline base
+		// position the ball a bit higher than the bottom edge
+		ball.y = Math.min(height - 40, Math.floor(height * 0.78));
 	}
 
 	function resetGame() {
@@ -80,8 +80,8 @@
 		// make spawn a bit faster at start so obstacles appear sooner
 		spawnInterval = 600;
 		ball.x = width / 2;
-		// position the ball a bit lower on the incline
-		ball.y = Math.max(40, Math.floor(height * 0.28));
+		// position the ball closer to the bottom so gameplay starts lower
+		ball.y = Math.min(height - 40, Math.floor(height * 0.78));
 		ball.speedX = 0;
 		lastTime = performance.now();
 		updateScoreDisplay();
