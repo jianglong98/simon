@@ -251,10 +251,16 @@
 	function draw() {
 		drawSlopeBackground();
 
+		// ensure drawing state is reset so obstacles are visible
+		ctx.save();
+		ctx.globalAlpha = 1;
+		ctx.globalCompositeOperation = 'source-over';
+		ctx.lineWidth = 1;
 		for (const o of obstacles) {
 			ctx.fillStyle = o.color;
 			roundRect(ctx, o.x, o.y, o.w, o.h, 4, true, false);
 		}
+		ctx.restore();
 
 		ctx.save();
 		const shadowOffset = Math.min(14, downhillSpeed / 80);
