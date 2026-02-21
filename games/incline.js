@@ -346,8 +346,17 @@
 		try { highScore = parseInt(localStorage.getItem(STORAGE_KEY)) || 0; } catch (e) { highScore = 0; }
 	}
 
-	document.addEventListener('DOMContentLoaded', () => {
-		if (!initCanvas()) return;
+	function onReady(fn) {
+		if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+		else fn();
+	}
+
+	onReady(() => {
+		if (!initCanvas()) {
+			console.warn('Incline: canvas not found');
+			return;
+		}
+		console.log('Incline initialized', canvas.width, canvas.height);
 		loadHighScore();
 		updateScoreDisplay();
 
