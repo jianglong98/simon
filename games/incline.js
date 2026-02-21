@@ -164,6 +164,8 @@
 		}
 
 		obstacles.push(obs);
+		// debug log to help trace spawning
+		try { console.log('Incline spawnObstacle', obs); } catch (e) {}
 	}
 
 	function loop(now) {
@@ -275,6 +277,12 @@
 			roundRect(ctx, o.x, o.y, o.w, o.h, 4, true, false);
 		}
 		ctx.restore();
+
+		// debug: show obstacle count
+		ctx.fillStyle = '#000';
+		ctx.font = '14px Arial';
+		ctx.textAlign = 'right';
+		ctx.fillText(`Obstacles: ${obstacles.length}`, width - 12, 40);
 
 		ctx.save();
 		const shadowOffset = Math.min(14, downhillSpeed / 80);
