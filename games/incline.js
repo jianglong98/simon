@@ -76,12 +76,23 @@
 		obstacles = [];
 		score = 0;
 		downhillSpeed = 160;
-		spawnInterval = 900;
+		// make spawn a bit faster at start so obstacles appear sooner
+		spawnInterval = 600;
 		ball.x = width / 2;
 		ball.y = Math.max(40, Math.floor(height * 0.18));
 		ball.speedX = 0;
 		lastTime = performance.now();
 		updateScoreDisplay();
+
+		// create a few visible obstacles immediately for debugging/visibility
+		for (let i = 0; i < 3; ++i) {
+			spawnObstacle();
+			const o = obstacles[obstacles.length - 1];
+			if (o) {
+				// place them within visible area so player can see them
+				o.y = randRange(40, Math.max(80, Math.floor(height * 0.35)));
+			}
+		}
 	}
 
 	function startGame() {
