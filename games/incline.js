@@ -42,8 +42,14 @@
 	const SPEED_INCREASE_PER_SECOND = 6; // increase per second
 	const MAX_DOWNHILL_SPEED = 900;
 
+	// Background offset for moving-diagonal effect
+	let bgOffset = 0;
+
+	// track the current spawn interval assigned to the timer
+	let currentSpawnInterval = 0;
+
 	// Spawn config
-	let spawnInterval = 1200; // ms; will tighten as speed increases
+	let spawnInterval = 900; // ms; will tighten as speed increases (faster start)
 
 	// Timing
 	let lastTime = 0;
@@ -62,16 +68,17 @@
 		width = canvas.width = canvas.clientWidth || canvas.width;
 		height = canvas.height = canvas.clientHeight || canvas.height;
 		ball.x = width / 2;
-		ball.y = height - 60;
+		// place ball near top so player has more time to react
+		ball.y = Math.max(40, Math.floor(height * 0.18));
 	}
 
 	function resetGame() {
 		obstacles = [];
 		score = 0;
 		downhillSpeed = 160;
-		spawnInterval = 1200;
+		spawnInterval = 900;
 		ball.x = width / 2;
-		ball.y = height - 60;
+		ball.y = Math.max(40, Math.floor(height * 0.18));
 		ball.speedX = 0;
 		lastTime = performance.now();
 		updateScoreDisplay();
@@ -83,7 +90,8 @@
 		running = true;
 		resetGame();
 		clearInterval(spawnTimer);
-		spawnTimer = setInterval(spawnObstacle, Math.max(250, spawnInterval));
+		currentSpawnInterval = Math.max(180, Math.floor(spawnInterval));
+		spawnTimer = setInterval(spawnObstacle, currentSpawnInterval);
 		lastTime = performance.now();
 		loop(lastTime);
 	}
@@ -110,11 +118,40 @@
 	}
 
 	function spawnObstacle() {
-		const w = randRange(40, 140);
-		const h = randRange(14, 30);
-		const x = randRange(20, width - 20 - w);
-		const y = height + h + randRange(0, 120);
-		obstacles.push({ x, y, w, h, color: '#b33' });
+		// varied obstacle types: static, moving, narrow, wide
+		const rnd = Math.random();
+		let type = 'static';
+		if (rnd < 0.22) type = 'moving';
+		else if (rnd < 0.40) type = 'narrow';
+		else if (rnd < 0.55) type = 'wide';
+
+		let w, h;
+		if (type === 'narrow') {
+			w = randRange(30, 60);
+			h = randRange(14, 26);
+		} else if (type === 'wide') {
+			w = randRange(Math.floor(width*0.28), Math.floor(width*0.6));
+			h = randRange(18, 34);
+		} else {
+			w = randRange(40, 140);
+			h = randRange(14, 30);
+		}
+
+		const x = randRange(12, Math.max(12, width - 12 - w));
+		const y = height + h + randRange(20, 260);
+
+		const colorVariants = ['#b33', '#2b8fbd', '#7a3fb2', '#e07a5f'];
+		const color = colorVariants[Math.floor(Math.random() * colorVariants.length)];
+
+		const obs = { x, y, w, h, color, type };
+		if (type === 'moving') {
+			obs.originX = x;
+			obs.oscAmp = randRange(30, Math.max(40, Math.floor(width * 0.2)));
+			obs.oscSpeed = (randRange(10, 40) / 10) * 0.8;
+			obs.oscPhase = Math.random() * Math.PI * 2;
+		}
+
+		obstacles.push(obs);
 	}
 
 	function loop(now) {
@@ -123,11 +160,17 @@
 		lastTime = now;
 
 		downhillSpeed = Math.min(MAX_DOWNHILL_SPEED, downhillSpeed + SPEED_INCREASE_PER_SECOND * dt);
-		spawnInterval = Math.max(300, 1200 - (downhillSpeed - 160) * 1.1);
-		if (spawnTimer) {
+		// tighten spawn interval as speed increases
+		spawnInterval = Math.max(180, 900 - (downhillSpeed - 160) * 1.0);
+		const newInterval = Math.max(180, Math.floor(spawnInterval));
+		if (spawnTimer && Math.abs(newInterval - currentSpawnInterval) > 120) {
 			clearInterval(spawnTimer);
-			spawnTimer = setInterval(spawnObstacle, Math.max(250, spawnInterval));
+			spawnTimer = setInterval(spawnObstacle, newInterval);
+			currentSpawnInterval = newInterval;
 		}
+
+		// update background offset to make diagonal lines appear moving
+		bgOffset += downhillSpeed * dt * 0.6;
 
 		update(dt);
 		draw();
@@ -143,6 +186,11 @@
 		for (let i = obstacles.length - 1; i >= 0; --i) {
 			const o = obstacles[i];
 			o.y -= downhillSpeed * dt;
+			if (o.type === 'moving') {
+				o.oscPhase += dt * o.oscSpeed;
+				o.x = o.originX + Math.sin(o.oscPhase) * o.oscAmp;
+				o.x = clamp(o.x, 8, width - o.w - 8);
+			}
 			if (o.y + o.h < -50) obstacles.splice(i, 1);
 		}
 
@@ -183,12 +231,21 @@
 		ctx.strokeStyle = 'rgba(0,0,0,0.06)';
 		ctx.lineWidth = 1;
 		const spacing = 36;
+		// offset lines by bgOffset so they move upwards
+		const offset = bgOffset % spacing;
 		ctx.beginPath();
-		for (let x = -height; x < width + height; x += spacing) {
+		for (let x = -height + offset; x < width + height; x += spacing) {
 			ctx.moveTo(x, height);
 			ctx.lineTo(x + height, 0);
 		}
 		ctx.stroke();
+
+		// subtle gradient overlay for depth
+		const grad = ctx.createLinearGradient(0, 0, 0, height);
+		grad.addColorStop(0, 'rgba(255,255,255,0.02)');
+		grad.addColorStop(1, 'rgba(0,0,0,0.02)');
+		ctx.fillStyle = grad;
+		ctx.fillRect(0, 0, width, height);
 	}
 
 	function draw() {
@@ -288,4 +345,3 @@
 	});
 })();
 
-alert("Incline game is not yet implemented.");
