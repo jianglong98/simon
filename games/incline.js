@@ -138,7 +138,8 @@
 		}
 
 		const x = randRange(12, Math.max(12, width - 12 - w));
-		const y = height + h + randRange(20, 260);
+		// spawn above the canvas so obstacles fall downward
+		const y = -h - randRange(20, 260);
 
 		const colorVariants = ['#b33', '#2b8fbd', '#7a3fb2', '#e07a5f'];
 		const color = colorVariants[Math.floor(Math.random() * colorVariants.length)];
@@ -185,13 +186,15 @@
 
 		for (let i = obstacles.length - 1; i >= 0; --i) {
 			const o = obstacles[i];
-			o.y -= downhillSpeed * dt;
+			// move obstacles downward to simulate falling from top to bottom
+			o.y += downhillSpeed * dt;
 			if (o.type === 'moving') {
 				o.oscPhase += dt * o.oscSpeed;
 				o.x = o.originX + Math.sin(o.oscPhase) * o.oscAmp;
 				o.x = clamp(o.x, 8, width - o.w - 8);
 			}
-			if (o.y + o.h < -50) obstacles.splice(i, 1);
+			// remove obstacles that have passed below the canvas
+			if (o.y > height + 50) obstacles.splice(i, 1);
 		}
 
 		score += downhillSpeed * dt * 0.02;
