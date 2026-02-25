@@ -38,9 +38,9 @@
 	let obstacles = [];
 
 	// Speed that simulates downhill motion (pixels per second)
-	let downhillSpeed = 160; // initial pixels/sec
-	const SPEED_INCREASE_PER_SECOND = 6; // increase per second
-	const MAX_DOWNHILL_SPEED = 900;
+	let downhillSpeed = 100; // initial pixels/sec
+	const SPEED_INCREASE_PER_SECOND = 3; // increase per second
+	const MAX_DOWNHILL_SPEED = 500;
 
 	// Background offset for moving-diagonal effect
 	let bgOffset = 0;
@@ -76,7 +76,7 @@
 	function resetGame() {
 		obstacles = [];
 		score = 0;
-		downhillSpeed = 160;
+		downhillSpeed = 100;
 		// make spawn a bit faster at start so obstacles appear sooner
 		spawnInterval = 600;
 		ball.x = width / 2;
