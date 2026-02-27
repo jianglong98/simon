@@ -30,16 +30,18 @@
 		y: 0,
 		r: 12,
 		speedX: 0,
-		lateralAccel: 0.0025,
-		maxSpeedX: 6,
+		// lateralAccel is unused but kept for future tweaks
+		lateralAccel: 0.005,
+		// allow faster sideways movement
+		maxSpeedX: 14,
 	};
 
 	// Obstacles (rectangles)
 	let obstacles = [];
 
 	// Speed that simulates downhill motion (pixels per second)
-	let downhillSpeed = 100; // initial pixels/sec
-	const SPEED_INCREASE_PER_SECOND = 3; // increase per second
+	let downhillSpeed = 150; // initial pixels/sec
+	const SPEED_INCREASE_PER_SECOND = 15; // increase per second
 	const MAX_DOWNHILL_SPEED = 500;
 
 	// Background offset for moving-diagonal effect
@@ -143,16 +145,22 @@
 			w = randRange(30, 60);
 			h = randRange(14, 26);
 		} else if (type === 'wide') {
-			w = randRange(Math.floor(width*0.28), Math.floor(width*0.6));
+			const maxWidth = width - (ball.r*2 + 24);
+			w = randRange(Math.floor(width*0.28), Math.min(Math.floor(width*0.6), maxWidth));
 			h = randRange(18, 34);
 		} else {
 			w = randRange(40, 140);
 			h = randRange(14, 30);
 		}
 
-		const x = randRange(12, Math.max(12, width - 12 - w));
-		// spawn above the canvas so obstacles fall downward
-		const y = -h - randRange(20, 260);
+		// ensure at least one clear corridor beside obstacle
+		const minCorridor = ball.r * 2 + 12;
+		let x = randRange(12, Math.max(12, width - 12 - w));
+		if (x < minCorridor) x = minCorridor;
+		if (x + w > width - minCorridor) x = width - minCorridor - w;
+
+		// spawn above the canvas with a larger minimum gap
+		const y = -h - randRange(120, 260);
 
 		const colorVariants = ['#b33', '#2b8fbd', '#7a3fb2', '#e07a5f'];
 		const color = colorVariants[Math.floor(Math.random() * colorVariants.length)];
@@ -195,7 +203,10 @@
 	}
 
 	function update(dt) {
-		ball.speedX *= 0.98;
+		// only apply friction when no turn keys pressed
+		if (!keys.left && !keys.right) {
+			ball.speedX *= 0.98;
+		}
 		ball.x += ball.speedX * dt * 60;
 		ball.x = Math.max(ball.r + 6, Math.min(width - ball.r - 6, ball.x));
 
@@ -347,7 +358,8 @@
 		if (target === 0) {
 			ball.speedX *= 0.86;
 		} else {
-			ball.speedX += target * 1.6;
+			// apply a stronger impulse for faster turning
+			ball.speedX += target * 5.2;
 			ball.speedX = clamp(ball.speedX, -ball.maxSpeedX, ball.maxSpeedX);
 		}
 	}
