@@ -42,7 +42,7 @@
 	// Speed that simulates downhill motion (pixels per second)
 	let downhillSpeed = 150; // initial pixels/sec
 	const SPEED_INCREASE_PER_SECOND = 15; // increase per second
-	const MAX_DOWNHILL_SPEED = 500;
+	const MAX_DOWNHILL_SPEED = 50000000000000000;
 
 	// Background offset for moving-diagonal effect
 	let bgOffset = 0;
