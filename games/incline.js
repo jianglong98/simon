@@ -44,7 +44,7 @@
 	// Speed that simulates downhill motion (pixels per second)
 	let downhillSpeed = 150; // initial pixels/sec
 	const SPEED_INCREASE_PER_SECOND = 15; // increase per second
-	const MAX_DOWNHILL_SPEED = 50000000000000000;
+	const MAX_DOWNHILL_SPEED = 800;
 
 	// Background offset for moving-diagonal effect
 	let bgOffset = 0;
@@ -69,25 +69,32 @@
 
 	function resizeCanvas() {
 		if (!canvas) return;
-		width = canvas.width = canvas.clientWidth || canvas.width;
-		height = canvas.height = canvas.clientHeight || canvas.height;
-		ball.x = width / 2;
-		// place ball nearer the bottom so it's closer to the incline base
-		// position the ball a bit higher than the bottom edge
-		ball.y = Math.min(height - 40, Math.floor(height * 0.78));
+		// Use the canvas's natural attribute size, not CSS layout size.
+		// CSS width:100% on the canvas element causes getBoundingClientRect to
+		// return the CSS pixel size which differs from the drawing buffer on
+		// Chrome/macOS HiDPI displays. We keep the drawing buffer fixed at the
+		// HTML attribute dimensions (900x400) and let CSS scale the display.
+		width = canvas.width || 900;
+		height = canvas.height || 400;
+		if (!running) {
+			ball.x = width / 2;
+			ball.y = Math.min(height - 40, Math.floor(height * 0.78));
+		}
 	}
 
 	function resetGame() {
 		obstacles = [];
 		score = 0;
 		downhillSpeed = 100;
-		// make spawn a bit faster at start so obstacles appear sooner
 		spawnInterval = 600;
+		// Ensure width/height are valid before placing ball
+		width = canvas.width || 900;
+		height = canvas.height || 400;
 		ball.x = width / 2;
 		// position the ball closer to the bottom so gameplay starts lower
 		ball.y = Math.min(height - 40, Math.floor(height * 0.78));
 		ball.speedX = 0;
-		lastTime = performance.now();
+		lastTime = 0;
 		updateScoreDisplay();
 
 		// create a few visible obstacles immediately for debugging/visibility
@@ -112,8 +119,8 @@
 		clearInterval(spawnTimer);
 		currentSpawnInterval = Math.max(180, Math.floor(spawnInterval));
 		spawnTimer = setInterval(spawnObstacle, currentSpawnInterval);
-		lastTime = performance.now();
-		loop(lastTime);
+		lastTime = 0;
+		animationId = requestAnimationFrame(loop);
 	}
 
 	function pauseGame() {
@@ -197,7 +204,8 @@
 
 	function loop(now) {
 		if (!running) return;
-		const dt = Math.min(50, now - lastTime) / 1000;
+		if (!lastTime) { lastTime = now; animationId = requestAnimationFrame(loop); return; }
+		const dt = Math.min(33, now - lastTime) / 1000;
 		lastTime = now;
 
 		downhillSpeed = Math.min(MAX_DOWNHILL_SPEED, downhillSpeed + SPEED_INCREASE_PER_SECOND * dt);
@@ -210,8 +218,8 @@
 			currentSpawnInterval = newInterval;
 		}
 
-		// update background offset to make diagonal lines appear moving
-		bgOffset += downhillSpeed * dt * 0.6;
+		// update background offset; keep small to avoid float precision issues
+		bgOffset = (bgOffset + downhillSpeed * dt * 0.6) % 3600;
 
 		update(dt);
 		draw();
