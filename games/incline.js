@@ -18,9 +18,11 @@
 	let width, height;
 	let animationId = null;
 	let spawnTimer = null;
+	let startBtn;
 
 	// Game state
 	let running = false;
+	let paused = false;
 	let score = 0;
 	let highScore = 0;
 
@@ -103,7 +105,10 @@
 		if (!canvas) return;
 		if (running) return;
 		running = true;
-		resetGame();
+		if (!paused) {
+			resetGame();
+		}
+		paused = false;
 		clearInterval(spawnTimer);
 		currentSpawnInterval = Math.max(180, Math.floor(spawnInterval));
 		spawnTimer = setInterval(spawnObstacle, currentSpawnInterval);
@@ -111,8 +116,19 @@
 		loop(lastTime);
 	}
 
+	function pauseGame() {
+		if (!running) return;
+		running = false;
+		paused = true;
+		if (animationId) cancelAnimationFrame(animationId);
+		animationId = null;
+		clearInterval(spawnTimer);
+		spawnTimer = null;
+	}
+
 	function stopGame() {
 		running = false;
+		paused = false;
 		if (animationId) cancelAnimationFrame(animationId);
 		animationId = null;
 		clearInterval(spawnTimer);
@@ -122,6 +138,7 @@
 			try { localStorage.setItem(STORAGE_KEY, String(highScore)); } catch (e) {}
 		}
 		updateScoreDisplay();
+		if (startBtn) startBtn.textContent = 'Start Game';
 		ctx.fillStyle = 'rgba(0,0,0,0.6)';
 		ctx.fillRect(0, 0, width, height);
 		ctx.fillStyle = '#fff';
@@ -382,8 +399,19 @@
 		loadHighScore();
 		updateScoreDisplay();
 
-		const startBtn = document.getElementById(START_BTN_ID);
-		if (startBtn) startBtn.addEventListener('click', startGame);
+		startBtn = document.getElementById(START_BTN_ID);
+		if (startBtn) {
+			startBtn.textContent = 'Start Game';
+			startBtn.addEventListener('click', () => {
+				if (running) {
+					pauseGame();
+					startBtn.textContent = 'Start Game';
+				} else {
+					startGame();
+					startBtn.textContent = 'Stop Game';
+				}
+			});
+		}
 
 		window.addEventListener('keydown', (e) => {
 			if(['ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
