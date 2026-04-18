@@ -381,6 +381,72 @@ nav ul li a:hover {
     border: 2px solid #ddd;
 }
 
+.ttt-wrapper {
+    display: flex;
+    flex-direction: row;
+    gap: 1.5rem;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.ttt-board {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(90px, 120px));
+    gap: 10px;
+}
+
+.ttt-cell {
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f5f5f5;
+    border: 3px solid #ddd;
+    border-radius: 12px;
+    font-size: 2.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    user-select: none;
+}
+
+.ttt-cell:hover {
+    background-color: #e8f6ff;
+}
+
+.ttt-cell.taken {
+    cursor: not-allowed;
+    opacity: 0.75;
+}
+
+.ttt-sidebar {
+    width: 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.status-box {
+    background-color: white;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+#tttStatus {
+    margin-top: 0.5rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+@media (max-width: 850px) {
+    .ttt-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
 .start-button {
     background-color: var(--primary-color);
     color: white;
