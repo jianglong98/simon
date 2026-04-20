@@ -1,15 +1,54 @@
-const winningCombinations = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6]
-];
+const size = 20;
+const winLength = 5;
 
-let tttBoardState = Array(9).fill('');
+function generateWinningCombinations(size, winLength) {
+    const combos = [];
+    // Rows
+    for (let row = 0; row < size; row++) {
+        for (let col = 0; col <= size - winLength; col++) {
+            const combo = [];
+            for (let i = 0; i < winLength; i++) {
+                combo.push(row * size + col + i);
+            }
+            combos.push(combo);
+        }
+    }
+    // Columns
+    for (let col = 0; col < size; col++) {
+        for (let row = 0; row <= size - winLength; row++) {
+            const combo = [];
+            for (let i = 0; i < winLength; i++) {
+                combo.push((row + i) * size + col);
+            }
+            combos.push(combo);
+        }
+    }
+    // Main diagonals (top-left to bottom-right)
+    for (let row = 0; row <= size - winLength; row++) {
+        for (let col = 0; col <= size - winLength; col++) {
+            const combo = [];
+            for (let i = 0; i < winLength; i++) {
+                combo.push((row + i) * size + (col + i));
+            }
+            combos.push(combo);
+        }
+    }
+    // Anti-diagonals (top-right to bottom-left)
+    for (let row = 0; row <= size - winLength; row++) {
+        for (let col = winLength - 1; col < size; col++) {
+            const combo = [];
+            for (let i = 0; i < winLength; i++) {
+                combo.push((row + i) * size + (col - i));
+            }
+            combos.push(combo);
+        }
+    }
+    return combos;
+}
+
+const winningCombinations = generateWinningCombinations(size, winLength);
+
+let tttBoardState = Array(size * size).fill('');
 let tttCurrentPlayer = 'X';
 let tttIsActive = true;
 let tttCells = [];
@@ -70,7 +109,7 @@ function handleTttCellClick(index) {
 }
 
 function resetTttGame() {
-    tttBoardState = Array(9).fill('');
+    tttBoardState = Array(size * size).fill('');
     tttCurrentPlayer = 'X';
     tttIsActive = true;
     renderTttBoard();
@@ -87,7 +126,7 @@ function initializeTttGame() {
     boardElement.innerHTML = '';
     tttCells = [];
 
-    for (let index = 0; index < 9; index++) {
+    for (let index = 0; index < size * size; index++) {
         const cell = document.createElement('div');
         cell.className = 'ttt-cell';
         cell.addEventListener('click', () => handleTttCellClick(index));
