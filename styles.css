@@ -772,3 +772,46 @@ nav ul li a:hover {
     from { transform: translate(-50%, -100%); opacity: 0; }
     to { transform: translate(-50%, 0); opacity: 1; }
 }
+
+/* Music button */
+.music-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 2.5rem;
+    cursor: pointer;
+    z-index: 1002;
+    opacity: 0.7;
+}
+
+/* Map container */
+.map-container {
+    margin: 20px 0;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.map-directions {
+    text-align: center;
+    padding: 15px;
+    background: #fff;
+}
+
+.directions-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #4285f4;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+/* Incline canvas */
+.incline-canvas {
+    display: block;
+    max-width: 100%;
+}

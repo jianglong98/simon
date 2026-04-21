@@ -61,13 +61,9 @@ function updateTttStatus(message) {
 
 function checkTttWinner() {
     for (const combo of winningCombinations) {
-        const [a, b, c] = combo;
-        if (
-            tttBoardState[a] &&
-            tttBoardState[a] === tttBoardState[b] &&
-            tttBoardState[a] === tttBoardState[c]
-        ) {
-            return tttBoardState[a];
+        const first = tttBoardState[combo[0]];
+        if (first && combo.every(i => tttBoardState[i] === first)) {
+            return first;
         }
     }
 

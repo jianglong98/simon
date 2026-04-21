@@ -14,7 +14,7 @@
         <div class="note">♬</div>
     </div>
     <div id="nowPlayingToast" class="now-playing-toast"></div>
-    <button id="musicBtn" style="position: fixed; top: 20px; right: 20px; background: none; border: none; font-size: 2.5rem; cursor: pointer; z-index: 1002; opacity: 0.7;" title="Toggle Playlist">📻</button>
+    <button id="musicBtn" type="button" class="music-btn" title="Toggle Playlist">📻</button>
     <header>
         <nav>
             <ul>
@@ -123,10 +123,10 @@
                 <p> I am going to graduate in June 2026 from Fairview PS.</p>
                 <p>I hope you enjoy my <a href="#games">games</a>!</p>
                 <p>im going to be starting middle school in september 2026</p>
-                <div class="map-container" style="margin: 20px 0; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                    <iframe width="100%" height="450" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?q=3590%20Joan%20Dr%2C%20Mississauga%2C%20ON%20L5B%201T8%2C%20Canada&t=&z=15&ie=UTF8&iwloc=&output=embed"></iframe>
-                    <div style="text-align: center; padding: 15px; background: #fff;">
-                        <a href="https://www.google.com/maps/dir/?api=1&destination=3590+Joan+Dr,+Mississauga,+ON+L5B+1T8,+Canada" target="_blank" style="display: inline-block; padding: 10px 20px; background-color: #4285f4; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">Get Directions</a>
+                <div class="map-container">
+                    <iframe title="Fairview PS location map" height="450" src="https://maps.google.com/maps?q=3590%20Joan%20Dr%2C%20Mississauga%2C%20ON%20L5B%201T8%2C%20Canada&amp;t=&amp;z=15&amp;ie=UTF8&amp;iwloc=&amp;output=embed"></iframe>
+                    <div class="map-directions">
+                        <a href="https://www.google.com/maps/dir/?api=1&amp;destination=3590+Joan+Dr,+Mississauga,+ON+L5B+1T8,+Canada" target="_blank" rel="noopener noreferrer" class="directions-btn">Get Directions</a>
                     </div>
                 </div>
                 <div class="subjects">
@@ -142,7 +142,7 @@
                         </li>
                         <li>
                             <strong>Science</strong>
-                            <p>Exploring habitats, simple machines, and light & sound</p>
+                            <p>Exploring habitats, simple machines, and light &amp; sound</p>
                         </li>
                         <li>
                             <strong>Social Studies</strong>
@@ -227,7 +227,6 @@
             <div class="container">
                 <h2>My Games</h2>
                 <p>Here are some games I've created with the help of Cascade in Windsurf:</p>
-                
                 <div class="game-container">
                     <h3>Snake Game</h3>
                     <p>Use arrow keys to move the snake. Collect different fruits for varying points:</p>
@@ -239,9 +238,9 @@
                     <div class="game-wrapper snake-wrapper">
                         <div class="snake-play">
                             <canvas id="snakeCanvas" width="640" height="640"></canvas>
-                            <button id="startGameBtn" class="start-button">Start Game</button>
+                            <button id="startGameBtn" type="button" class="start-button">Start Game</button>
                         </div>
-                        <aside class="game-sidebar">
+                        <aside class="game-sidebar" aria-label="Snake game scores">
                             <div class="high-score-box">
                                 <h4>High Score</h4>
                                 <div id="highScore">0</div>
@@ -252,15 +251,15 @@
 
                 <div class="game-container">
                     <h3>Tic Tac Toe</h3>
-                    <p>Play a classic 3x3 Tic Tac Toe game. Click any empty square to place your mark.</p>
+                    <p>Play a 20x20 Tic Tac Toe game. Get 5 in a row to win! Click any empty square to place your mark.</p>
                     <div class="game-wrapper ttt-wrapper">
                         <div id="tttBoard" class="ttt-board"></div>
-                        <aside class="game-sidebar ttt-sidebar">
+                        <aside class="game-sidebar ttt-sidebar" aria-label="Tic Tac Toe status">
                             <div class="status-box">
                                 <h4>Game Status</h4>
                                 <div id="tttStatus">X's turn</div>
                             </div>
-                            <button id="tttResetBtn" class="start-button">Reset Game</button>
+                            <button id="tttResetBtn" type="button" class="start-button">Reset Game</button>
                         </aside>
                     </div>
                 </div>
@@ -272,9 +271,9 @@
                         <div class="craft-stats">
                             <span id="discoveredCount">Discovered: 0/0</span>
                             <div class="data-controls">
-                                <button id="exportDataBtn" class="data-button">Export Data</button>
-                                <button id="importDataBtn" class="data-button">Import Data</button>
-                                <button id="resetGameBtn" class="data-button warning">Reset Game</button>
+                                <button id="exportDataBtn" type="button" class="data-button">Export Data</button>
+                                <button id="importDataBtn" type="button" class="data-button">Import Data</button>
+                                <button id="resetGameBtn" type="button" class="data-button warning">Reset Game</button>
                             </div>
                         </div>
                         <div id="craftWorkspace" class="craft-workspace">
@@ -291,10 +290,10 @@
                     <p>Use left/right arrow keys to steer the ball down an endless incline. Avoid obstacles as speed increases.</p>
                     <div class="game-wrapper incline-wrapper">
                         <div class="incline-play">
-                            <canvas id="inclineCanvas" width="900" height="400" style="display:block;max-width:100%;"></canvas>
-                            <button id="inclineStartBtn" class="start-button">Start Game</button>
+                            <canvas id="inclineCanvas" width="900" height="400" class="incline-canvas"></canvas>
+                            <button id="inclineStartBtn" type="button" class="start-button">Start Game</button>
                         </div>
-                        <aside class="game-sidebar">
+                        <aside class="game-sidebar" aria-label="Incline game scores">
                             <div class="score-box">
                                 <h4>Score</h4>
                                 <div id="inclineScore">0</div>
