@@ -308,9 +308,33 @@
             </div>
         </section>
     </main>
+        <section id="gallery" class="section">
+            <div class="container">
+                <h2>Photo Gallery</h2>
+                <div class="gallery-grid" aria-label="Photo gallery">
+                    <a href="images/simon.png" class="gallery-item">
+                        <img src="images/simon.png" alt="Simon portrait" loading="lazy">
+                    </a>
+                    <a href="images/salt-lake.webp" class="gallery-item">
+                        <img src="images/salt-lake.webp" alt="Salt Lake" loading="lazy">
+                    </a>
+                    <a href="images/road.jpg" class="gallery-item">
+                        <img src="images/road.jpg" alt="Road" loading="lazy">
+                    </a>
+                </div>
+            </div>
+        </section>
     <footer>
         <p>&copy; 2024 Simon. All rights reserved.</p>
     </footer>
+    <!-- Lightbox markup -->
+    <div id="lightbox" class="lightbox" aria-hidden="true" role="dialog" aria-label="Image preview">
+        <button class="lightbox-close" aria-label="Close">×</button>
+        <button class="lightbox-prev" aria-label="Previous image">‹</button>
+        <img id="lightbox-img" alt="">
+        <button class="lightbox-next" aria-label="Next image">›</button>
+    </div>
+
     <!-- Load scripts at the end of body -->
     <script src="games/config.js?v=2"></script>
     <script src="games/fruits.js?v=2"></script>
@@ -318,5 +342,6 @@
     <script src="games/tictactoe.js?v=2"></script>
     <script src="games/craft.js?v=2"></script>
     <script src="games/incline.js?v=2"></script>
+    <script src="gallery.js?v=1"></script>
 </body>
 </html>
