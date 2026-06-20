@@ -325,7 +325,7 @@
             </div>
         </section>
     <footer>
-        <p>&copy; 2024 Simon. All rights reserved.</p>
+        <p>&copy; <span id="footer-year">2026</span> Simon. All rights reserved.</p>
     </footer>
     <!-- Lightbox markup -->
     <div id="lightbox" class="lightbox" aria-hidden="true" role="dialog" aria-label="Image preview">
@@ -343,5 +343,12 @@
     <script src="games/craft.js?v=2"></script>
     <script src="games/incline.js?v=2"></script>
     <script src="gallery.js?v=1"></script>
+    <script>
+        (function(){
+            const el = document.getElementById('footer-year');
+            if (!el) return;
+            try { el.textContent = new Date().getFullYear(); } catch(e) { /* no-op */ }
+        })();
+    </script>
 </body>
 </html>
