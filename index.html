@@ -53,7 +53,23 @@
         const musicBtn = document.getElementById('musicBtn');
         const musicNotes = document.getElementById('musicNotes');
         const nowPlayingToast = document.getElementById('nowPlayingToast');
+        let micToggleBtn = null;
+        let micStatus = null;
+        let spectrogramCanvas = null;
+        let spectrogramCtx = null;
         let toastTimeout;
+        let audioContext = null;
+        let analyser = null;
+        let frequencyData = null;
+        let timeData = null;
+        let stream = null;
+        let rafId = null;
+        let isMicOn = false;
+        let meterValue = 0;
+        let spectrogramHistory = [];
+        let spectrogramRows = 90;
+        let spectrogramCols = 140;
+        let lastFrameTime = 0;
         
         // Setup event listeners for the audio player
         audioPlayer.onended = function() {
@@ -106,6 +122,219 @@
                 musicNotes.classList.remove('playing');
             }
         });
+
+        function updateMicStatus(message, listening = false) {
+            if (micStatus) {
+                micStatus.textContent = message;
+            }
+            if (micToggleBtn) {
+                micToggleBtn.textContent = listening ? '🔴 Turn Off Mic' : '🎤 Turn On Mic';
+                micToggleBtn.classList.toggle('active', listening);
+            }
+        }
+
+        function resizeSpectrogramCanvas() {
+            if (!spectrogramCanvas || !spectrogramCtx) return;
+            const rect = spectrogramCanvas.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            spectrogramCanvas.width = Math.round(rect.width * dpr);
+            spectrogramCanvas.height = Math.round(rect.height * dpr);
+            spectrogramCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+            spectrogramRows = Math.max(80, Math.floor(rect.height / 3));
+            spectrogramCols = Math.max(140, Math.floor(rect.width / 2));
+            spectrogramHistory = Array.from({ length: spectrogramRows }, () => Array(spectrogramCols).fill(0));
+        }
+
+        function drawSpectrogramFrame() {
+            if (!analyser || !frequencyData || !timeData || !spectrogramCanvas || !spectrogramCtx) return;
+
+            analyser.getByteTimeDomainData(timeData);
+            analyser.getByteFrequencyData(frequencyData);
+            const width = spectrogramCanvas.clientWidth || spectrogramCanvas.width;
+            const height = spectrogramCanvas.clientHeight || spectrogramCanvas.height;
+
+            if (spectrogramCanvas.width !== Math.round(width * (window.devicePixelRatio || 1))) {
+                resizeSpectrogramCanvas();
+            }
+
+            const now = performance.now();
+            const delta = Math.min(0.05, (now - lastFrameTime) / 1000 || 0.016);
+            lastFrameTime = now;
+
+            const gradient = spectrogramCtx.createLinearGradient(0, 0, 0, height);
+            gradient.addColorStop(0, '#030712');
+            gradient.addColorStop(1, '#0f172a');
+            spectrogramCtx.fillStyle = gradient;
+            spectrogramCtx.fillRect(0, 0, width, height);
+
+            const centerY = height / 2;
+            const amplitudeScale = height * 0.22;
+            const baseFrequency = 1.8;
+            const lineCount = 5;
+            for (let layer = 0; layer < lineCount; layer += 1) {
+                spectrogramCtx.beginPath();
+                for (let i = 0; i < timeData.length; i += 1) {
+                    const x = (i / (timeData.length - 1)) * width;
+                    const normalized = (timeData[i] - 128) / 128;
+                    const wobble = Math.sin((i / timeData.length) * Math.PI * 2 * (layer + 1) + now * 0.0015) * 0.08;
+                    const envelope = Math.max(0.15, 1 - (layer / (lineCount + 2)) * 0.7);
+                    const y = centerY + normalized * amplitudeScale * envelope + wobble * amplitudeScale * 0.35;
+                    if (i === 0) {
+                        spectrogramCtx.moveTo(x, y);
+                    } else {
+                        spectrogramCtx.lineTo(x, y);
+                    }
+                }
+                const hue = 190 + layer * 25;
+                spectrogramCtx.strokeStyle = `hsla(${hue}, 90%, 70%, ${0.8 - layer * 0.1})`;
+                spectrogramCtx.lineWidth = layer === 0 ? 3 : 1.8;
+                spectrogramCtx.shadowBlur = 10;
+                spectrogramCtx.shadowColor = '#38bdf8';
+                spectrogramCtx.stroke();
+            }
+            spectrogramCtx.shadowBlur = 0;
+
+            let rms = 0;
+            let peakDb = -100;
+            const sampleCount = timeData.length;
+            for (let i = 0; i < sampleCount; i += 1) {
+                const normalized = (timeData[i] - 128) / 128;
+                const amplitude = Math.abs(normalized);
+                rms += amplitude * amplitude;
+                const db = 20 * Math.log10(Math.max(amplitude / 0.2, 1e-4));
+                peakDb = Math.max(peakDb, db);
+            }
+            rms = Math.sqrt(rms / sampleCount);
+            meterValue = meterValue * 0.72 + rms * 0.28;
+            const displayDb = 20 * Math.log10(Math.max(meterValue / 0.2, 1e-4));
+
+            const bins = 64;
+            const barWidth = Math.max(4, Math.floor(width / bins));
+            const barBaseY = height * 0.78;
+            const maxBarHeight = height * 0.16;
+            for (let i = 0; i < bins; i += 1) {
+                const start = Math.floor((i / bins) * frequencyData.length);
+                const end = Math.floor(((i + 1) / bins) * frequencyData.length);
+                let sum = 0;
+                for (let j = start; j < end; j += 1) {
+                    sum += frequencyData[j] || 0;
+                }
+                const amp = Math.max(0, sum / Math.max(1, end - start) / 255);
+                const barHeight = Math.max(8, Math.round(amp * maxBarHeight));
+                const x = i * barWidth;
+                const y = barBaseY - barHeight;
+                const hue = 180 + amp * 150;
+                spectrogramCtx.fillStyle = `hsla(${hue}, 90%, 60%, 0.95)`;
+                spectrogramCtx.fillRect(x, y, Math.max(2, barWidth - 2), barHeight);
+            }
+
+            spectrogramCtx.fillStyle = 'rgba(255,255,255,0.95)';
+            spectrogramCtx.font = 'bold 14px Arial';
+            spectrogramCtx.fillText(`Voice level: ${displayDb.toFixed(1)} dB`, 12, 22);
+            spectrogramCtx.font = '12px Arial';
+            spectrogramCtx.fillText('Timbre / vibration shown by layered wave motion', 12, height - 12);
+
+            rafId = requestAnimationFrame(drawSpectrogramFrame);
+        }
+
+        async function toggleMic() {
+            if (isMicOn) {
+                stopMic();
+                return;
+            }
+
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                updateMicStatus('Mic not supported');
+                return;
+            }
+
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        echoCancellation: false,
+                        noiseSuppression: false,
+                        autoGainControl: false
+                    }
+                });
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 2048;
+                analyser.smoothingTimeConstant = 0.9;
+                analyser.minDecibels = -100;
+                analyser.maxDecibels = -10;
+
+                const source = audioContext.createMediaStreamSource(stream);
+                source.connect(analyser);
+                frequencyData = new Uint8Array(analyser.frequencyBinCount);
+                timeData = new Uint8Array(analyser.fftSize);
+
+                resizeSpectrogramCanvas();
+                await audioContext.resume();
+                isMicOn = true;
+                updateMicStatus('Listening…', true);
+                drawSpectrogramFrame();
+            } catch (error) {
+                console.error('Mic access error:', error);
+                if (error.name === 'NotAllowedError') {
+                    updateMicStatus('Permission denied');
+                } else {
+                    updateMicStatus('Mic access blocked');
+                }
+            }
+        }
+
+        function stopMic() {
+            if (rafId) {
+                cancelAnimationFrame(rafId);
+                rafId = null;
+            }
+
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+
+            if (audioContext) {
+                audioContext.close().catch(() => {});
+                audioContext = null;
+            }
+
+            analyser = null;
+            frequencyData = null;
+            timeData = null;
+            isMicOn = false;
+            if (spectrogramCtx && spectrogramCanvas) {
+                spectrogramCtx.clearRect(0, 0, spectrogramCanvas.clientWidth || spectrogramCanvas.width, spectrogramCanvas.clientHeight || spectrogramCanvas.height);
+            }
+            updateMicStatus('Microphone off');
+        }
+
+        function initMicElements() {
+            micToggleBtn = document.getElementById('micToggleBtn');
+            micStatus = document.getElementById('micStatus');
+            spectrogramCanvas = document.getElementById('spectrogramCanvas');
+            spectrogramCtx = spectrogramCanvas ? spectrogramCanvas.getContext('2d') : null;
+            resizeSpectrogramCanvas();
+            updateMicStatus('Microphone off');
+        }
+
+        function attachMicControls() {
+            if (!micToggleBtn) return;
+            micToggleBtn.addEventListener('click', toggleMic);
+            window.addEventListener('beforeunload', stopMic);
+            window.addEventListener('resize', resizeSpectrogramCanvas);
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                initMicElements();
+                attachMicControls();
+            });
+        } else {
+            initMicElements();
+            attachMicControls();
+        }
     </script>
 
     <main>
@@ -226,6 +455,15 @@
             <div class="container">
                 <h2>My Games</h2>
                 <p>Here are some games I've created with the help of Cascade in Windsurf:</p>
+                <div class="game-container">
+                    <h3>Voice Spectrogram</h3>
+                    <p>Turn on your microphone to see a live spectrogram.</p>
+                    <div class="mic-panel" aria-live="polite">
+                        <button id="micToggleBtn" type="button" class="mic-toggle-btn">🎤 Turn On Mic</button>
+                        <div id="micStatus" class="mic-status">Microphone off</div>
+                        <canvas id="spectrogramCanvas" class="spectrogram-canvas" width="320" height="180" aria-label="Live microphone spectrogram"></canvas>
+                    </div>
+                </div>
                 <div class="game-container">
                     <h3>Snake Game</h3>
                     <p>Use arrow keys to move the snake. Collect different fruits for varying points:</p>
