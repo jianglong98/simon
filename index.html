@@ -161,11 +161,14 @@
 
             analyser.getByteTimeDomainData(timeData);
             analyser.getByteFrequencyData(frequencyData);
-            const width = spectrogramCanvas.clientWidth || spectrogramCanvas.width;
-            const height = spectrogramCanvas.clientHeight || spectrogramCanvas.height;
+            
+            // Use the canvas's actual pixel dimensions for all calculations to ensure consistency.
+            const { width, height } = spectrogramCanvas;
 
-            if (spectrogramCanvas.width !== Math.round(width * (window.devicePixelRatio || 1))) {
+            // Check if a resize is needed by comparing against the CSS display size.
+            if (width !== Math.round(spectrogramCanvas.clientWidth * (window.devicePixelRatio || 1))) {
                 resizeSpectrogramCanvas();
+                return; // Skip this frame to allow the resize to complete.
             }
 
             const now = performance.now();
