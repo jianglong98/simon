@@ -67,9 +67,9 @@
         let isMicOn = false;
         let meterValue = 0;
         let spectrogramHistory = [];
+        let lastFrameTime = 0;
         let spectrogramRows = 90;
         let spectrogramCols = 140;
-        let lastFrameTime = 0;
         
         // Setup event listeners for the audio player
         audioPlayer.onended = function() {
@@ -146,6 +146,16 @@
             spectrogramHistory = Array.from({ length: spectrogramRows }, () => Array(spectrogramCols).fill(0));
         }
 
+        function drawSpectrogramBackground() {
+            if (!spectrogramCtx || !spectrogramCanvas) return;
+            const { width, height } = spectrogramCanvas;
+            const gradient = spectrogramCtx.createLinearGradient(0, 0, 0, height);
+            gradient.addColorStop(0, '#030712');
+            gradient.addColorStop(1, '#0f172a');
+            spectrogramCtx.fillStyle = gradient;
+            spectrogramCtx.fillRect(0, 0, width, height);
+        }
+
         function drawSpectrogramFrame() {
             if (!analyser || !frequencyData || !timeData || !spectrogramCanvas || !spectrogramCtx) return;
 
@@ -169,7 +179,7 @@
             spectrogramCtx.fillRect(0, 0, width, height);
 
             const centerY = height / 2;
-            const amplitudeScale = height * 0.22;
+            const amplitudeScale = height * 0.35;
             const baseFrequency = 1.8;
             const lineCount = 5;
             for (let layer = 0; layer < lineCount; layer += 1) {
@@ -177,7 +187,7 @@
                 for (let i = 0; i < timeData.length; i += 1) {
                     const x = (i / (timeData.length - 1)) * width;
                     const normalized = (timeData[i] - 128) / 128;
-                    const wobble = Math.sin((i / timeData.length) * Math.PI * 2 * (layer + 1) + now * 0.0015) * 0.08;
+                    const wobble = Math.sin((i / timeData.length) * Math.PI * 2 * (layer + 1) + now * 0.0005) * 0.08;
                     const envelope = Math.max(0.15, 1 - (layer / (lineCount + 2)) * 0.7);
                     const y = centerY + normalized * amplitudeScale * envelope + wobble * amplitudeScale * 0.35;
                     if (i === 0) {
@@ -195,19 +205,27 @@
             }
             spectrogramCtx.shadowBlur = 0;
 
+            // --- Voice Level Meter ---
             let rms = 0;
             let peakDb = -100;
             const sampleCount = timeData.length;
-            for (let i = 0; i < sampleCount; i += 1) {
+            for (let i = 0; i < timeData.length; i += 1) {
                 const normalized = (timeData[i] - 128) / 128;
                 const amplitude = Math.abs(normalized);
-                rms += amplitude * amplitude;
+                rms += normalized * normalized;
                 const db = 20 * Math.log10(Math.max(amplitude / 0.2, 1e-4));
                 peakDb = Math.max(peakDb, db);
             }
             rms = Math.sqrt(rms / sampleCount);
-            meterValue = meterValue * 0.72 + rms * 0.28;
-            const displayDb = 20 * Math.log10(Math.max(meterValue / 0.2, 1e-4));
+            meterValue = meterValue * 0.92 + rms * 0.08; // Smoothing
+            const displayDb = 20 * Math.log10(Math.max(meterValue, 1e-4));
+
+            // Overlay text on top of the spectrogram
+            spectrogramCtx.fillStyle = 'rgba(255,255,255,0.95)';
+            spectrogramCtx.font = 'bold 14px Arial';
+            spectrogramCtx.fillText(`Voice level: ${displayDb.toFixed(1)} dB`, 12, 22);
+            spectrogramCtx.font = '12px Arial';
+            spectrogramCtx.fillText('Timbre / vibration shown by layered wave motion', 12, height - 12);
 
             const bins = 64;
             const barWidth = Math.max(4, Math.floor(width / bins));
@@ -228,12 +246,6 @@
                 spectrogramCtx.fillStyle = `hsla(${hue}, 90%, 60%, 0.95)`;
                 spectrogramCtx.fillRect(x, y, Math.max(2, barWidth - 2), barHeight);
             }
-
-            spectrogramCtx.fillStyle = 'rgba(255,255,255,0.95)';
-            spectrogramCtx.font = 'bold 14px Arial';
-            spectrogramCtx.fillText(`Voice level: ${displayDb.toFixed(1)} dB`, 12, 22);
-            spectrogramCtx.font = '12px Arial';
-            spectrogramCtx.fillText('Timbre / vibration shown by layered wave motion', 12, height - 12);
 
             rafId = requestAnimationFrame(drawSpectrogramFrame);
         }
@@ -305,7 +317,13 @@
             timeData = null;
             isMicOn = false;
             if (spectrogramCtx && spectrogramCanvas) {
-                spectrogramCtx.clearRect(0, 0, spectrogramCanvas.clientWidth || spectrogramCanvas.width, spectrogramCanvas.clientHeight || spectrogramCanvas.height);
+                const width = spectrogramCanvas.clientWidth || spectrogramCanvas.width;
+                const height = spectrogramCanvas.clientHeight || spectrogramCanvas.height;
+                const gradient = spectrogramCtx.createLinearGradient(0, 0, 0, height);
+                gradient.addColorStop(0, '#030712');
+                gradient.addColorStop(1, '#0f172a');
+                spectrogramCtx.fillStyle = gradient;
+                spectrogramCtx.fillRect(0, 0, width, height);
             }
             updateMicStatus('Microphone off');
         }
