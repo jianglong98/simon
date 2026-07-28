@@ -173,29 +173,28 @@
             const plotWidth = width - padding.left - padding.right;
             const plotHeight = height - padding.top - padding.bottom;
 
-            // --- Scrolling Spectrogram (Waterfall) Logic ---
-
-            // 1. Shift the plot area to the left by 1 pixel.
+            // Shift the plot area to the left by 1 pixel for scrolling effect.
             spectrogramCtx.drawImage(spectrogramCanvas, padding.left + 1, padding.top, plotWidth - 1, plotHeight, padding.left, padding.top, plotWidth - 1, plotHeight);
 
-            // 2. Draw the new frequency data in the rightmost column of the plot area.
+            // Clear the rightmost column with a solid dark color from the background gradient
+            // This ensures that if no sound is detected, the column is reset to background.
+            spectrogramCtx.fillStyle = '#0f172a'; // Matches the end color of the background gradient
+            const rightmostColumnX = padding.left + plotWidth - 1;
+            spectrogramCtx.fillRect(rightmostColumnX, padding.top, 1, plotHeight);
+
+            // Draw the new frequency data in the rightmost column of the plot area.
             const numBins = analyser.frequencyBinCount;
             for (let i = 0; i < numBins; i++) {
                 const value = frequencyData[i];
                 const percent = value / 255;
                 // Map frequency bin to vertical position (low frequencies at bottom)
                 const y = padding.top + plotHeight - (i / numBins) * plotHeight;
-
-                // Map amplitude to a color from blue (low) to green to yellow (high)
-                if (percent > 0.02) { // Only draw if there's significant sound
-                    const hue = 240 - percent * 180; // 240 (blue) -> 60 (yellow)
-                    const lightness = 15 + percent * 60;
-                    spectrogramCtx.fillStyle = `hsl(${hue}, 90%, ${lightness}%)`;
-                    spectrogramCtx.fillRect(padding.left + plotWidth - 1, y, 1, 2);
-                } else {
-                    // Clear old data by drawing a slice of the background gradient.
-                    spectrogramCtx.drawImage(spectrogramCanvas, 0, y, 1, 1, padding.left + plotWidth - 1, y, 1, 1);
-                }
+                
+                // For retesting, always draw a blue line, varying opacity based on sound intensity
+                // This ensures something is always visible if there's any sound.
+                const opacity = Math.min(1, percent * 5); // Adjust multiplier (e.g., 5) to make faint sounds more visible
+                spectrogramCtx.fillStyle = `rgba(0, 0, 255, ${opacity})`; // Solid blue with varying opacity
+                spectrogramCtx.fillRect(rightmostColumnX, y, 1, 2);
             }
 
             // --- Draw Axes and Labels ---
