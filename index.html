@@ -190,7 +190,7 @@
                 // Map frequency bin to vertical position (low frequencies at bottom)
                 const y = padding.top + plotHeight - (i / numBins) * plotHeight;
                 
-                // For retesting, always draw a blue line, varying opacity based on sound intensity
+                // Always draw a blue line, varying opacity based on sound intensity
                 // This ensures something is always visible if there's any sound.
                 const opacity = Math.min(1, percent * 5); // Adjust multiplier (e.g., 5) to make faint sounds more visible
                 spectrogramCtx.fillStyle = `rgba(0, 0, 255, ${opacity})`; // Solid blue with varying opacity
