@@ -548,6 +548,26 @@
                         </aside>
                     </div>
                 </div>
+
+                <div class="game-container" id="turingGame">
+                    <h3>Turing Image Lab</h3>
+                    <p>Upload an image and run iterative blur & sharpen to reveal emergent Turing-like patterns.</p>
+                    <div class="game-wrapper">
+                        <div class="turing-controls">
+                            <input id="turingFile" type="file" accept="image/*">
+                            <label>Iterations: <input id="turingIterations" type="number" value="50" min="1" step="1"></label>
+                            <label>Per frame: <input id="turingPerFrame" type="number" value="8" min="1" max="200"></label>
+                            <label>Blur sigma: <input id="turingSigma" type="number" value="1.9" step="0.1" min="0.1"></label>
+                            <label>Sharpen strength: <input id="turingStrength" type="number" value="1.0" step="0.1" min="0"></label>
+                            <button id="turingStart" class="start-button">Start</button>
+                            <button id="turingStop" class="start-button" style="background:#777">Stop</button>
+                            <button id="turingReset" class="start-button" style="background:#aaa">Reset</button>
+                            <button id="turingSave" class="start-button" style="background:#4caf50">Save</button>
+                            <div id="turingProgress" class="turing-progress">Idle</div>
+                        </div>
+                        <canvas id="turingCanvas" class="turing-canvas" width="800" height="400"></canvas>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
@@ -604,6 +624,7 @@
     <script src="games/craft.js?v=2"></script>
     <script src="games/incline.js?v=2"></script>
     <script src="gallery.js?v=1"></script>
+    <script src="games/turing.js?v=1"></script>
     <script>
         (function(){
             const el = document.getElementById('footer-year');
