@@ -552,6 +552,14 @@
                 <div class="game-container" id="turingGame">
                     <h3>Turing Image Lab</h3>
                     <p>Upload an image and run iterative blur & sharpen to reveal emergent Turing-like patterns.</p>
+                    <div class="equation-panel" aria-label="Gray-Scott reaction-diffusion equations">
+                        <div class="equation-label">Reaction-diffusion model</div>
+                        <div class="equation" role="img" aria-label="du by dt equals D u times Laplacian u minus u v squared plus F times open parenthesis 1 minus u close parenthesis; dv by dt equals D v times Laplacian v plus u v squared minus open parenthesis F plus k close parenthesis v">
+                            <span>∂u/∂t = D<sub>u</sub>∇²u − uv² + F(1 − u)</span>
+                            <span>∂v/∂t = D<sub>v</sub>∇²v + uv² − (F + k)v</span>
+                        </div>
+                        <div class="equation-note">Gray-Scott dynamics: diffusion, reaction, feed rate <em>F</em>, and kill rate <em>k</em>.</div>
+                    </div>
                     <div class="game-wrapper">
                         <div class="turing-controls">
                             <input id="turingFile" type="file" accept="image/*">

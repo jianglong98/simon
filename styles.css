@@ -369,6 +369,38 @@ nav ul li a:hover {
     width: 6.5rem;
 }
 
+.equation-panel {
+    margin: 1.25rem 0 1rem;
+    padding: 1rem 1.25rem;
+    border-left: 4px solid #2f7f73;
+    background: #edf7f4;
+    color: #173b38;
+}
+
+.equation-label {
+    margin-bottom: 0.45rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.equation {
+    display: grid;
+    gap: 0.25rem;
+    overflow-x: auto;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(1rem, 2.2vw, 1.35rem);
+    line-height: 1.45;
+    white-space: nowrap;
+}
+
+.equation-note {
+    margin-top: 0.55rem;
+    color: #38605b;
+    font-size: 0.85rem;
+}
+
 .turing-progress {
     margin-left: 1rem;
     font-weight: 700;
