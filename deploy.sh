@@ -21,13 +21,13 @@ else
     exit 1 # Exit if gsutil is not found
 fi
 
-# 1. Sync with GitHub (Commit & Pull updates)
-echo "🔄 Checking for updates from GitHub..."
+# 1. Sync with GitHub (Pull, Commit & Push updates)
+echo "🔄 Syncing with GitHub..."
 if command -v git &> /dev/null && [ -d .git ]; then
     # Pull latest changes BEFORE making local commits to avoid conflicts
     echo "⬇️ Pulling latest changes..."
     # --autostash saves local changes, pulls, then restores them
-    git pull --rebase --autostash || echo "⚠️ Git pull warning. Proceeding..."
+    git pull --rebase --autostash
 
     # Update README timestamp
     TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
@@ -49,6 +49,10 @@ if command -v git &> /dev/null && [ -d .git ]; then
     if ! git diff --cached --quiet; then
         git commit -m "Deploy update: $(date '+%Y-%m-%d %H:%M:%S')"
     fi
+
+    echo "⬆️ Pushing to GitHub..."
+    git push
+    echo "✅ GitHub sync complete!"
 fi
 
 echo "🚀 Deploying simon.otalkie.com to $BUCKET..."
@@ -65,13 +69,6 @@ $GSUTIL_CMD iam ch allUsers:objectViewer "$BUCKET"
 $GSUTIL_CMD web set -m index.html "$BUCKET"
 
 echo "✅ Deployment complete!"
-
-# 5. Push to GitHub
-if command -v git &> /dev/null && [ -d .git ]; then
-    echo "🔄 Pushing to GitHub..."
-    git push
-    echo "✅ GitHub sync complete!"
-fi
 
 # Final message
 echo "🎉 Deployment process completed."
